@@ -206,9 +206,11 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerLeave}
         onClick={handleClick}
-        className={wrapperClass}
-        // Only the per-card base rotation is set here; everything else is CSS
-        style={{ '--card-rot': rotation } as React.CSSProperties}
+        className={`floating-card-entry ${wrapperClass}`}
+        style={{
+          '--card-rot': rotation,
+          animationDelay: `${index * 90}ms`,
+        } as React.CSSProperties}
       >
         {/* ── Inner wrapper: wobble animation pivoting at the pin ── */}
         <div
@@ -220,10 +222,11 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
 
           {/* Card shell — glassmorphism */}
           <div
-            className={`glass-card-shell rounded-2xl overflow-hidden transition-opacity duration-300 ${task.completed ? 'opacity-55' : ''}`}
+            className={`glass-card-shell rounded-2xl overflow-hidden ${task.completed ? 'opacity-50' : 'opacity-100'}`}
             style={{
               backgroundColor: c.cardBg,
               boxShadow: c.shadow,
+              transition: 'opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
             {/* Top edge reflection (full-width frosted highlight) */}

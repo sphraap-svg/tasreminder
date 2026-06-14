@@ -275,8 +275,79 @@
   .glass-card-shell::after {
     transition: none !important;
   }
+
+  .calendar-card,
+  .board-anim,
+  .floating-card-entry,
+  .connector-anim {
+    animation: none !important;
+  }
 }
 
+
+/* ════════════════════════════════════════════════════════════════════
+   TODAY PAGE — staggered entry animations
+   ════════════════════════════════════════════════════════════════════ */
+
+/* CalendarCard slides down from slightly above */
+@keyframes calendar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendar-card {
+  animation: calendar-enter 0.50s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Board header elements fade + slide up */
+@keyframes board-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.board-anim {
+  animation: board-fade-up 0.46s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Stagger delays for header children */
+.board-anim-1 { animation-delay: 0.06s; }
+.board-anim-2 { animation-delay: 0.13s; }
+.board-anim-3 { animation-delay: 0.20s; }
+.board-anim-4 { animation-delay: 0.27s; }
+
+/* Floating card entry — applied directly on glass-card-wrapper.
+   Uses opacity only so it doesn't conflict with hover/press transform transitions.
+   CSS spec: animations beat transitions for the same property anyway, but
+   keeping them on separate properties (opacity vs transform) is safer. */
+@keyframes floating-card-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.floating-card-entry {
+  animation: floating-card-enter 0.44s ease both;
+}
+
+/* Connector lines fade in after cards */
+@keyframes connector-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.connector-anim {
+  animation: connector-fade 0.38s ease both;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    TASK ITEM — enter / leave animations + hover shine

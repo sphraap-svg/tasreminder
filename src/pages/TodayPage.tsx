@@ -96,16 +96,16 @@ export function TodayPage() {
 
         {/* Board header */}
         <div className="text-center px-6 pt-8 pb-5">
-          <h1 className="text-4xl font-black text-gray-800 dark:text-gray-100 tracking-tighter leading-none">
+          <h1 className="board-anim board-anim-1 text-4xl font-black text-gray-800 dark:text-gray-100 tracking-tighter leading-none">
             امروز
           </h1>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2 font-medium">
+          <p className="board-anim board-anim-2 text-sm text-gray-400 dark:text-gray-500 mt-2 font-medium">
             {formatTodayHeaderFa()}
           </p>
 
           {/* Summary pills */}
           {totalCount > 0 && (
-            <div className="flex gap-2 justify-center mt-4 flex-wrap">
+            <div className="board-anim board-anim-3 flex gap-2 justify-center mt-4 flex-wrap">
               <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/70 dark:bg-white/10 text-gray-600 dark:text-gray-300 shadow-sm">
                 کل {totalCount}
               </span>
@@ -124,7 +124,7 @@ export function TodayPage() {
         </div>
 
         {/* Quick add */}
-        <div className="px-4 pb-6">
+        <div className="board-anim board-anim-4 px-4 pb-6">
           <QuickAddTask />
         </div>
 
@@ -173,7 +173,12 @@ export function TodayPage() {
 
                   {/* Connector to next card */}
                   {i < pinnedTasks.length - 1 && (
-                    <CardConnector fromLeft={i % 2 === 0} />
+                    <div
+                      className="connector-anim w-full"
+                      style={{ animationDelay: `${(i + 1) * 90 + 180}ms` }}
+                    >
+                      <CardConnector fromLeft={i % 2 === 0} />
+                    </div>
                   )}
                 </React.Fragment>
               ))}
