@@ -6,161 +6,203 @@
   :root {
     color-scheme: light;
   }
-
   .dark {
     color-scheme: dark;
   }
-
   html {
     font-family: 'Vazirmatn', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
-
-  * {
-    box-sizing: border-box;
-  }
-
+  * { box-sizing: border-box; }
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
   .dark ::-webkit-scrollbar-thumb { background: #374151; }
-
-  input[type="date"],
-  input[type="time"] {
-    direction: ltr;
-    text-align: left;
-  }
+  input[type="date"], input[type="time"] { direction: ltr; text-align: left; }
 }
 
 @layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
-
-  .pb-safe {
-    padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
-  }
+  .pb-safe { padding-bottom: max(0.625rem, env(safe-area-inset-bottom)); }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   PINBOARD — glassmorphism board background
-   ══════════════════════════════════════════════════════════════════ */
+/* ─── Smooth theme-switch transitions (bg + border only, global) ─── */
+/* NOTE: keep specificity low (0,0,0) so card classes (0,1,0) override */
+*, *::before, *::after {
+  transition-property: background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+/* ─── DO NOT add a :not([...]) rule here — it raises specificity    ─── */
+/* ─── above class selectors and kills card transform transitions.   ─── */
+
+
+/* ════════════════════════════════════════════════════════════════════
+   PINBOARD BACKGROUND
+   Light:  soft lavender gradient with colour blobs
+   Dark:   deep navy with vivid neon-pastel blobs so backdrop-blur
+           on cards has visible coloured content to blur against
+   ════════════════════════════════════════════════════════════════════ */
 
 .pinboard-paper {
   position: relative;
-  background-color: #ede9fe;
+  background-color: #ece8ff;
   background-image:
-    radial-gradient(ellipse 70% 55% at 12% 22%, rgba(167, 139, 250, 0.38) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 48% at 88% 8%,  rgba(251, 191, 165, 0.42) 0%, transparent 58%),
-    radial-gradient(ellipse 55% 52% at 58% 88%, rgba(147, 197, 253, 0.36) 0%, transparent 62%),
-    radial-gradient(ellipse 48% 42% at 88% 72%, rgba(196, 181, 253, 0.28) 0%, transparent 58%),
-    radial-gradient(ellipse 40% 35% at 30% 65%, rgba(253, 220, 149, 0.22) 0%, transparent 55%),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 27px,
-      rgba(0, 0, 0, 0.022) 28px
-    );
+    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(167,139,250,0.60) 0%, transparent 65%),
+    radial-gradient(ellipse 65% 52% at 92%  6%, rgba(251,191,165,0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 62% 58% at 55% 92%, rgba(147,197,253,0.58) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 46% at 88% 76%, rgba(196,181,253,0.52) 0%, transparent 60%),
+    radial-gradient(ellipse 46% 42% at 22% 68%, rgba(253,220,149,0.45) 0%, transparent 58%),
+    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,0.020) 28px);
 }
 
 .dark .pinboard-paper {
-  background-color: #0d0f1c;
+  background-color: #0b0d1a;
   background-image:
-    radial-gradient(ellipse 70% 55% at 12% 22%, rgba(99,  60, 230, 0.22) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 48% at 88% 8%,  rgba(200, 80,  60, 0.18) 0%, transparent 58%),
-    radial-gradient(ellipse 55% 52% at 58% 88%, rgba(40, 100, 200, 0.20) 0%, transparent 62%),
-    radial-gradient(ellipse 48% 42% at 88% 72%, rgba(120, 60, 200, 0.15) 0%, transparent 58%),
-    radial-gradient(ellipse 40% 35% at 30% 65%, rgba(200, 160, 40, 0.12) 0%, transparent 55%),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 27px,
-      rgba(255, 255, 255, 0.022) 28px
-    );
+    /* vivid orbs — backdrop-blur will smear these across card surfaces */
+    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(130, 80,255,0.68) 0%, transparent 65%),
+    radial-gradient(ellipse 65% 52% at 92%  6%, rgba(255,100, 80,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 62% 58% at 55% 92%, rgba( 50,150,255,0.62) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 46% at 88% 76%, rgba(160, 90,255,0.52) 0%, transparent 60%),
+    radial-gradient(ellipse 46% 42% at 22% 68%, rgba(255,180, 60,0.38) 0%, transparent 58%),
+    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(255,255,255,0.022) 28px);
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   GLASS CARD — wrapper, states, shimmer, wobble
-   ══════════════════════════════════════════════════════════════════ */
 
-/*
- * EASING GUIDE (adjust durations here to retune the whole card feel):
- *   --ease-out-soft  : cubic-bezier(0.22, 1, 0.36, 1)   → silky deceleration, no overshoot
- *   --ease-out-quick : cubic-bezier(0.16, 1, 0.3,  1)   → faster settle, natural finish
- *
- * DURATIONS:
- *   Hover lift  : 560ms  (feel free to raise to 700ms for even dreamier)
- *   Hover shadow: 640ms
- *   Press in    : 130ms  (snappy response)
- *   Press out   : 460ms  (gentle spring back)
- *   Wobble      : 1 200ms
- *   Shimmer     : 680ms
- */
+/* ════════════════════════════════════════════════════════════════════
+   GLASS CARD WRAPPER
+   ────────────────────────────────────────────────────────────────────
+   All state transitions use !important to beat the global * rule
+   (specificity fix — see note above).
 
-/* ── Outer card wrapper ─────────────────────────────────────────── */
+   SPEED TUNING:
+     hover lift   → change 580ms / 640ms
+     press in     → change 130ms
+     wobble       → change 1200ms in .card-wobble
+   ════════════════════════════════════════════════════════════════════ */
 
 .glass-card-wrapper {
-  /* Per-card rotation stored as CSS variable — set via inline style in React */
+  /* Per-card base rotation — set by React as a CSS variable */
   --card-rot: 0deg;
-
   position: relative;
-  transform-origin: top center;     /* pin is at top: movement feels anchored there */
 
-  /* Resting state */
+  /* Cards pivot around the pin at the top */
+  transform-origin: top center;
   transform: rotate(var(--card-rot));
-  filter: drop-shadow(0 5px 18px rgba(0,0,0,0.09)) drop-shadow(0 1px 4px rgba(0,0,0,0.06));
 
-  /* Smooth transition for all interaction states */
+  filter:
+    drop-shadow(0 6px 22px rgba(0,0,0,0.11))
+    drop-shadow(0 1px 4px  rgba(0,0,0,0.07));
+
+  /* !important beats the global *:not([...]) specificity (was killing transitions) */
   transition:
-    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter    640ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 580ms cubic-bezier(0.22, 1, 0.36, 1) !important,
+    filter    640ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-/* HOVER — gentle float: slight level + lift + barely perceptible scale */
+.dark .glass-card-wrapper {
+  filter:
+    drop-shadow(0 6px 28px rgba(110, 80,255,0.28))
+    drop-shadow(0 2px 6px  rgba(0,  0,  0,0.55));
+}
+
+/* HOVER ─── gentle float + level rotation */
 .glass-card-wrapper.card-hovered {
-  transform: rotate(0deg) translateY(-6px) scale(1.016);
+  transform: rotate(0deg) translateY(-7px) scale(1.020) !important;
   filter:
-    drop-shadow(0 18px 30px rgba(0,0,0,0.15))
-    drop-shadow(0 5px 12px rgba(0,0,0,0.08));
+    drop-shadow(0 22px 40px rgba(0,0,0,0.17))
+    drop-shadow(0  6px 14px rgba(0,0,0,0.09)) !important;
   z-index: 20;
-  will-change: transform;
 }
 
-/* PRESSED without hover (edge case) — squish in place, fast in */
-.glass-card-wrapper.card-pressed:not(.card-hovered) {
-  transform: rotate(var(--card-rot)) translateY(2px) scale(0.977);
-  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.08));
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter    120ms ease;
-  will-change: transform;
-}
-
-/* PRESSED while hovering — press down from float, fast in */
-.glass-card-wrapper.card-hovered.card-pressed {
-  transform: rotate(0deg) translateY(0px) scale(0.977);
+.dark .glass-card-wrapper.card-hovered {
   filter:
-    drop-shadow(0 8px 16px rgba(0,0,0,0.12))
-    drop-shadow(0 2px 6px rgba(0,0,0,0.06));
-  transition:
-    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter    120ms ease;
-  will-change: transform;
+    drop-shadow(0 22px 44px rgba(110, 80,255,0.40))
+    drop-shadow(0  6px 18px rgba(  0,  0,  0,0.60)) !important;
 }
 
-/* ── Glass card shell ───────────────────────────────────────────── */
+/* PRESSED from rest ─── fast-in squish */
+.glass-card-wrapper.card-pressed:not(.card-hovered) {
+  transform: rotate(var(--card-rot)) translateY(2px) scale(0.977) !important;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.09)) !important;
+  transition:
+    transform 130ms cubic-bezier(0.22, 1, 0.36, 1) !important,
+    filter    120ms ease !important;
+}
+
+/* PRESSED while hovering ─── presses down from float */
+.glass-card-wrapper.card-hovered.card-pressed {
+  transform: rotate(0deg) translateY(0px) scale(0.977) !important;
+  filter:
+    drop-shadow(0 8px 18px rgba(0,0,0,0.13))
+    drop-shadow(0 2px  6px rgba(0,0,0,0.07)) !important;
+  transition:
+    transform 130ms cubic-bezier(0.22, 1, 0.36, 1) !important,
+    filter    120ms ease !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   GLASS CARD SHELL
+   ────────────────────────────────────────────────────────────────────
+   ::before  → gradient border (liquid-glass stroke)
+   ::after   → hover shimmer (diagonal light sweep)
+
+   GLASS BRIGHTNESS TUNING:
+     backdrop-filter brightness() → overall card brightness
+     ::before gradient opacity   → border brightness
+   ════════════════════════════════════════════════════════════════════ */
 
 .glass-card-shell {
-  position: relative;               /* anchor for ::after shimmer */
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  position: relative;   /* anchor for ::before and ::after */
+
+  /* Strong blur + saturation: requires coloured content behind card to show */
+  backdrop-filter:         blur(28px) saturate(210%) brightness(1.08);
+  -webkit-backdrop-filter: blur(28px) saturate(210%) brightness(1.08);
+
+  /* Opacity transition for completed cards */
+  transition: opacity 300ms ease !important;
 }
 
-/* Hover shimmer — a soft diagonal light sweep across the card face */
+/* ── Gradient border: top-left bright, bottom-right fade ── */
+.glass-card-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;   /* border thickness — increase for thicker stroke */
+  background: linear-gradient(
+    142deg,
+    rgba(255,255,255,0.92)  0%,
+    rgba(255,255,255,0.50) 30%,
+    rgba(255,255,255,0.14) 65%,
+    rgba(255,255,255,0.04) 100%
+  );
+  /* Mask: show only the 1.5px padding band → gradient border */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Dark mode: blue-purple tinted glow border */
+.dark .glass-card-shell::before {
+  background: linear-gradient(
+    142deg,
+    rgba(230,220,255,0.90)  0%,
+    rgba(190,165,255,0.50) 32%,
+    rgba(130,100,255,0.15) 68%,
+    rgba( 80, 60,200,0.04) 100%
+  );
+}
+
+/* ── Hover shimmer: diagonal light sweep on card face ── */
 .glass-card-shell::after {
   content: '';
   position: absolute;
@@ -169,57 +211,59 @@
   background: transparent;
   pointer-events: none;
   z-index: 15;
-  transition: background 680ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background 700ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .glass-card-wrapper.card-hovered .glass-card-shell::after {
   background: linear-gradient(
     128deg,
-    rgba(255, 255, 255, 0.17) 0%,
-    rgba(255, 255, 255, 0.06) 42%,
-    rgba(255, 255, 255, 0)    68%
+    rgba(255,255,255,0.24)  0%,
+    rgba(255,255,255,0.10) 38%,
+    rgba(255,255,255,0)    62%
   );
 }
 
-/* Dark mode palette muting */
-.dark .glass-card-shell {
-  filter: saturate(0.82) brightness(0.78);
-}
+/* Dark mode: no extra brightness filter on shell (was making cards too dark) */
+/* Cards are naturally readable against the vivid dark board */
 
-/* ── Wobble animation — inner div pivots at the top pin ────────── */
-/*
- * Values kept deliberately small:
- *   skewX  : ±0.72 deg max  (paper bends, doesn't distort)
- *   rotate : ±0.28 deg max  (barely perceptible micro-rotate)
- *   translateY: 5 px max    (gentle float, not a bounce)
- * Easing: fast start, very long tail settle — like paper losing momentum.
- */
+
+/* ════════════════════════════════════════════════════════════════════
+   PAPER WIND WOBBLE
+   ────────────────────────────────────────────────────────────────────
+   Applied to the INNER wrapper (child of .glass-card-wrapper).
+   transform-origin: top center → card pivots at the pin.
+
+   TUNING:
+     Duration     → .card-wobble animation-duration (currently 1200ms)
+     Max swing    → translateY keyframe values (currently 7px peak)
+     Max bend     → skewX keyframe values (currently ±1.1 deg)
+     Max rotate   → rotate() keyframe values (currently ±0.44 deg)
+   ════════════════════════════════════════════════════════════════════ */
 
 @keyframes card-wobble {
   0%   { transform: none; }
-  7%   { transform: translateY(5px)    skewX(-0.72deg) rotate(-0.28deg); }
-  19%  { transform: translateY(-2.8px) skewX( 0.50deg) rotate( 0.22deg); }
-  33%  { transform: translateY(2.2px)  skewX(-0.34deg) rotate(-0.15deg); }
-  48%  { transform: translateY(-1.4px) skewX( 0.20deg) rotate( 0.10deg); }
-  63%  { transform: translateY(0.85px) skewX(-0.11deg) rotate(-0.05deg); }
-  78%  { transform: translateY(-0.4px) skewX( 0.05deg); }
-  90%  { transform: translateY(0.15px); }
+  7%   { transform: translateY( 7.0px) skewX(-1.10deg) rotate(-0.44deg); }
+  19%  { transform: translateY(-4.0px) skewX( 0.76deg) rotate( 0.33deg); }
+  33%  { transform: translateY( 3.2px) skewX(-0.52deg) rotate(-0.22deg); }
+  48%  { transform: translateY(-2.0px) skewX( 0.32deg) rotate( 0.14deg); }
+  63%  { transform: translateY( 1.2px) skewX(-0.17deg) rotate(-0.07deg); }
+  78%  { transform: translateY(-0.6px) skewX( 0.08deg); }
+  90%  { transform: translateY( 0.2px); }
   100% { transform: none; }
 }
 
 .card-wobble {
-  /* 1 200ms lets the long tail decay gracefully */
   animation: card-wobble 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   transform-origin: top center;
   will-change: transform;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   REDUCED MOTION — hard cut to instant for users who prefer it
-   ══════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-  .card-wobble { animation: none; }
+  .card-wobble { animation: none !important; }
 
   .glass-card-wrapper,
   .glass-card-wrapper.card-pressed:not(.card-hovered),
@@ -227,19 +271,8 @@
     transition: none !important;
   }
 
-  .glass-card-shell::after { transition: none !important; }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SMOOTH THEME TRANSITIONS (background & border only)
-   ══════════════════════════════════════════════════════════════════ */
-
-*, *::before, *::after {
-  transition-property: background-color, border-color;
-  transition-duration: 150ms;
-  transition-timing-function: ease;
-}
-
-*:not([class*="animate-"]):not([class*="transition-"]) {
-  transition-property: background-color, border-color, color;
+  .glass-card-shell,
+  .glass-card-shell::after {
+    transition: none !important;
+  }
 }

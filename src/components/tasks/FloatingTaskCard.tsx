@@ -26,73 +26,73 @@ interface Palette {
 const PALETTE: Palette[] = [
   // 0 — peach / coral
   {
-    cardBg:   'rgba(255, 232, 218, 0.68)',
-    panelBg:  'rgba(255, 190, 150, 0.50)',
-    border:   'rgba(255, 255, 255, 0.62)',
+    cardBg:   'rgba(255, 232, 218, 0.28)',  // was 0.68 — lower opacity lets backdrop-blur show through
+    panelBg:  'rgba(255, 185, 140, 0.88)',  // was 0.50 — higher opacity for text readability
+    border:   'rgba(255, 255, 255, 0.62)',  // kept for reference; border now from CSS ::before
     pin:      '#EF4444',
     pinShine: '#FCA5A5',
-    pinGlow:  'rgba(239, 68, 68, 0.28)',
+    pinGlow:  'rgba(239, 68, 68, 0.48)',
     text:     '#7C2D12',
     num:      '#FB923C',
-    metaBg:   'rgba(255,255,255,0.52)',
-    actionBg: 'rgba(255,255,255,0.32)',
-    shadow:   '0 20px 48px rgba(239,68,68,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
+    metaBg:   'rgba(255,255,255,0.62)',
+    actionBg: 'rgba(255, 240, 228, 0.62)',
+    shadow:   '0 12px 44px rgba(239,68,68,0.22), 0 3px 14px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.80)',
   },
   // 1 — sky blue
   {
-    cardBg:   'rgba(218, 240, 255, 0.68)',
-    panelBg:  'rgba(140, 206, 255, 0.50)',
+    cardBg:   'rgba(218, 240, 255, 0.28)',
+    panelBg:  'rgba(110, 195, 255, 0.88)',
     border:   'rgba(255, 255, 255, 0.62)',
     pin:      '#2563EB',
     pinShine: '#93C5FD',
-    pinGlow:  'rgba(37, 99, 235, 0.28)',
+    pinGlow:  'rgba(37, 99, 235, 0.48)',
     text:     '#1E3A8A',
     num:      '#60A5FA',
-    metaBg:   'rgba(255,255,255,0.52)',
-    actionBg: 'rgba(255,255,255,0.32)',
-    shadow:   '0 20px 48px rgba(37,99,235,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
+    metaBg:   'rgba(255,255,255,0.62)',
+    actionBg: 'rgba(215, 238, 255, 0.62)',
+    shadow:   '0 12px 44px rgba(37,99,235,0.22), 0 3px 14px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.80)',
   },
   // 2 — lavender / purple
   {
-    cardBg:   'rgba(240, 228, 255, 0.68)',
-    panelBg:  'rgba(200, 168, 255, 0.50)',
+    cardBg:   'rgba(240, 228, 255, 0.28)',
+    panelBg:  'rgba(192, 158, 255, 0.88)',
     border:   'rgba(255, 255, 255, 0.62)',
     pin:      '#7C3AED',
     pinShine: '#C4B5FD',
-    pinGlow:  'rgba(124, 58, 237, 0.28)',
+    pinGlow:  'rgba(124, 58, 237, 0.48)',
     text:     '#4C1D95',
     num:      '#A78BFA',
-    metaBg:   'rgba(255,255,255,0.52)',
-    actionBg: 'rgba(255,255,255,0.32)',
-    shadow:   '0 20px 48px rgba(124,58,237,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
+    metaBg:   'rgba(255,255,255,0.62)',
+    actionBg: 'rgba(238, 226, 255, 0.62)',
+    shadow:   '0 12px 44px rgba(124,58,237,0.22), 0 3px 14px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.80)',
   },
   // 3 — warm amber / golden
   {
-    cardBg:   'rgba(255, 248, 218, 0.68)',
-    panelBg:  'rgba(255, 210, 90, 0.50)',
+    cardBg:   'rgba(255, 248, 218, 0.28)',
+    panelBg:  'rgba(255, 208, 72, 0.88)',
     border:   'rgba(255, 255, 255, 0.62)',
     pin:      '#D97706',
     pinShine: '#FCD34D',
-    pinGlow:  'rgba(217, 119, 6, 0.28)',
+    pinGlow:  'rgba(217, 119, 6, 0.48)',
     text:     '#78350F',
     num:      '#F59E0B',
-    metaBg:   'rgba(255,255,255,0.52)',
-    actionBg: 'rgba(255,255,255,0.32)',
-    shadow:   '0 20px 48px rgba(217,119,6,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
+    metaBg:   'rgba(255,255,255,0.62)',
+    actionBg: 'rgba(255, 244, 208, 0.62)',
+    shadow:   '0 12px 44px rgba(217,119,6,0.22), 0 3px 14px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.80)',
   },
   // 4 — pale indigo
   {
-    cardBg:   'rgba(225, 232, 255, 0.68)',
-    panelBg:  'rgba(170, 188, 255, 0.50)',
+    cardBg:   'rgba(225, 232, 255, 0.28)',
+    panelBg:  'rgba(155, 175, 255, 0.88)',
     border:   'rgba(255, 255, 255, 0.62)',
     pin:      '#4F46E5',
     pinShine: '#A5B4FC',
-    pinGlow:  'rgba(79, 70, 229, 0.28)',
+    pinGlow:  'rgba(79, 70, 229, 0.48)',
     text:     '#312E81',
     num:      '#818CF8',
-    metaBg:   'rgba(255,255,255,0.52)',
-    actionBg: 'rgba(255,255,255,0.32)',
-    shadow:   '0 20px 48px rgba(79,70,229,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
+    metaBg:   'rgba(255,255,255,0.62)',
+    actionBg: 'rgba(222, 228, 255, 0.62)',
+    shadow:   '0 12px 44px rgba(79,70,229,0.22), 0 3px 14px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,0.80)',
   },
 ];
 
@@ -220,10 +220,9 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
 
           {/* Card shell — glassmorphism */}
           <div
-            className={`glass-card-shell rounded-2xl overflow-hidden border transition-opacity duration-300 ${task.completed ? 'opacity-55' : ''}`}
+            className={`glass-card-shell rounded-2xl overflow-hidden transition-opacity duration-300 ${task.completed ? 'opacity-55' : ''}`}
             style={{
               backgroundColor: c.cardBg,
-              borderColor: c.border,
               boxShadow: c.shadow,
             }}
           >
