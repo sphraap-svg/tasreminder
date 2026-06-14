@@ -62,6 +62,29 @@
   }
 }
 
+/* ── Pinboard paper background ── */
+.pinboard-paper {
+  background-color: #F8F7F4;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(0, 0, 0, 0.045) 28px
+    );
+}
+
+.dark .pinboard-paper {
+  background-color: #1c1f2b;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(255, 255, 255, 0.04) 28px
+    );
+}
+
 /* Smooth theme transitions */
 *, *::before, *::after {
   transition-property: background-color, border-color;
