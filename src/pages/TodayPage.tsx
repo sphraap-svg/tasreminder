@@ -6,6 +6,7 @@ import { SearchBar } from '../components/filters/SearchBar';
 import { FilterBar } from '../components/filters/FilterBar';
 import { EmptyState } from '../components/ui/EmptyState';
 import { FloatingTaskCard } from '../components/tasks/FloatingTaskCard';
+import { CalendarCard } from '../components/ui/CalendarCard';
 import { formatTodayHeaderFa } from '../utils/date';
 import { FilterType } from '../types';
 
@@ -84,6 +85,11 @@ export function TodayPage() {
 
   return (
     <div className="flex flex-col gap-0">
+
+      {/* ── Calendar Card ── */}
+      <div className="pt-4 pb-2">
+        <CalendarCard />
+      </div>
 
       {/* ── Board: paper background ── */}
       <div className="pinboard-paper rounded-2xl overflow-hidden shadow-sm mx-0.5">

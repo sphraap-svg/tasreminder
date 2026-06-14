@@ -3,29 +3,57 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { TaskProvider } from './context/TaskContext';
 import { ToastProvider } from './context/ToastContext';
+import { AuthProvider } from './context/AuthContext';
+import { WorkspaceProvider } from './context/WorkspaceContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { TodayPage } from './pages/TodayPage';
 import { WeekPage } from './pages/WeekPage';
 import { ArchivePage } from './pages/ArchivePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { LoginPage } from './pages/LoginPage';
+import { WorkspacePage } from './pages/WorkspacePage';
+import { isSupabaseConfigured } from './lib/supabase';
+import { useAuth } from './context/AuthContext';
+
+function WorkspaceRoute() {
+  const { user, loading } = useAuth();
+  if (!isSupabaseConfigured) return <Navigate to="/today" replace />;
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return <WorkspacePage />;
+}
+
+function LoginRoute() {
+  const { user, loading } = useAuth();
+  if (!isSupabaseConfigured) return <Navigate to="/today" replace />;
+  if (loading) return null;
+  if (user) return <Navigate to="/workspace" replace />;
+  return <LoginPage />;
+}
 
 export default function App() {
   return (
     <ThemeProvider>
       <TaskProvider>
         <ToastProvider>
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/today" replace />} />
-              <Route element={<AppLayout />}>
-                <Route path="/today" element={<TodayPage />} />
-                <Route path="/week" element={<WeekPage />} />
-                <Route path="/archive" element={<ArchivePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/today" replace />} />
-            </Routes>
-          </BrowserRouter>
+          <AuthProvider>
+            <WorkspaceProvider>
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/today" replace />} />
+                  <Route path="/login" element={<LoginRoute />} />
+                  <Route element={<AppLayout />}>
+                    <Route path="/today" element={<TodayPage />} />
+                    <Route path="/week" element={<WeekPage />} />
+                    <Route path="/archive" element={<ArchivePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/workspace" element={<WorkspaceRoute />} />
+                  </Route>
+                  <Route path="*" element={<Navigate to="/today" replace />} />
+                </Routes>
+              </BrowserRouter>
+            </WorkspaceProvider>
+          </AuthProvider>
         </ToastProvider>
       </TaskProvider>
     </ThemeProvider>
