@@ -15,7 +15,6 @@
     font-family: 'Vazirmatn', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Safe area for notch/home-bar */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
@@ -23,23 +22,11 @@
     box-sizing: border-box;
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 99px;
-  }
-  .dark ::-webkit-scrollbar-thumb {
-    background: #374151;
-  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+  .dark ::-webkit-scrollbar-thumb { background: #374151; }
 
-  /* Native date/time inputs in RTL */
   input[type="date"],
   input[type="time"] {
     direction: ltr;
@@ -52,47 +39,113 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-  /* Safe area bottom padding for bottom nav */
   .pb-safe {
     padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
   }
 }
 
-/* ── Pinboard paper background ── */
+/* ══════════════════════════════════════════════════════════════════
+   PINBOARD — glassmorphism board background
+   ══════════════════════════════════════════════════════════════════ */
+
 .pinboard-paper {
-  background-color: #F8F7F4;
+  position: relative;
+  background-color: #ede9fe;
   background-image:
+    radial-gradient(ellipse 70% 55% at 12% 22%, rgba(167, 139, 250, 0.38) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 48% at 88% 8%,  rgba(251, 191, 165, 0.42) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 52% at 58% 88%, rgba(147, 197, 253, 0.36) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 42% at 88% 72%, rgba(196, 181, 253, 0.28) 0%, transparent 58%),
+    radial-gradient(ellipse 40% 35% at 30% 65%, rgba(253, 220, 149, 0.22) 0%, transparent 55%),
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 27px,
-      rgba(0, 0, 0, 0.045) 28px
+      rgba(0, 0, 0, 0.022) 28px
     );
 }
 
 .dark .pinboard-paper {
-  background-color: #1c1f2b;
+  background-color: #0d0f1c;
   background-image:
+    radial-gradient(ellipse 70% 55% at 12% 22%, rgba(99,  60, 230, 0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 48% at 88% 8%,  rgba(200, 80,  60, 0.18) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 52% at 58% 88%, rgba(40, 100, 200, 0.20) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 42% at 88% 72%, rgba(120, 60, 200, 0.15) 0%, transparent 58%),
+    radial-gradient(ellipse 40% 35% at 30% 65%, rgba(200, 160, 40, 0.12) 0%, transparent 55%),
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 27px,
-      rgba(255, 255, 255, 0.04) 28px
+      rgba(255, 255, 255, 0.022) 28px
     );
 }
 
-/* Smooth theme transitions */
+/* ══════════════════════════════════════════════════════════════════
+   GLASS CARD — backdrop-filter + wrapper
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Applied to the card outer shell */
+.glass-card-shell {
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+
+/* Muted palette in dark mode via brightness filter */
+.dark .glass-card-shell {
+  filter: saturate(0.82) brightness(0.78);
+}
+
+/* Applied to the outer wrapper — lets us cut transitions in reduced-motion */
+.glass-card-wrapper {
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.28s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   WOBBLE animation — inner card bends around the top pin
+   ══════════════════════════════════════════════════════════════════ */
+
+@keyframes card-wobble {
+  0%   { transform: skewX(0deg)    translateY(0px);    }
+  10%  { transform: skewX(-2.2deg) translateY(7px);    }
+  24%  { transform: skewX(1.6deg)  translateY(-4px);   }
+  40%  { transform: skewX(-1.1deg) translateY(4px);    }
+  55%  { transform: skewX(0.65deg) translateY(-2px);   }
+  70%  { transform: skewX(-0.35deg) translateY(1px);   }
+  84%  { transform: skewX(0.15deg) translateY(-0.4px); }
+  100% { transform: skewX(0deg)    translateY(0px);    }
+}
+
+.card-wobble {
+  animation: card-wobble 0.66s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform-origin: top center;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   REDUCED MOTION — respect user preference
+   ══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card-wobble {
+    animation: none;
+  }
+  .glass-card-wrapper {
+    transition: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SMOOTH THEME TRANSITIONS (background & border only)
+   ══════════════════════════════════════════════════════════════════ */
+
 *, *::before, *::after {
   transition-property: background-color, border-color;
   transition-duration: 150ms;
   transition-timing-function: ease;
 }
 
-/* But don't animate transforms/opacity globally (only on specific elements) */
 *:not([class*="animate-"]):not([class*="transition-"]) {
   transition-property: background-color, border-color, color;
 }

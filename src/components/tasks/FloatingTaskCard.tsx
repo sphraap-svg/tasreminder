@@ -7,90 +7,120 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { formatTimeFa } from '../../utils/date';
 import { RECURRENCE_LABELS } from '../../utils/recurrence';
 
-// ─── Palette ─────────────────────────────────────────────────────────────────
+// ─── Glassmorphism palette ────────────────────────────────────────────────────
 
 interface Palette {
-  bg: string;
-  panel: string;
+  cardBg: string;      // translucent card shell background
+  panelBg: string;     // translucent inner panel
+  border: string;      // glass border / inset highlight
   pin: string;
   pinShine: string;
+  pinGlow: string;     // outer glow ring
   text: string;
   num: string;
   metaBg: string;
+  actionBg: string;    // action strip frosted background
+  shadow: string;      // layered card shadow
 }
 
 const PALETTE: Palette[] = [
   // 0 — peach / coral
   {
-    bg: '#FFF5F0',
-    panel: '#FFD9C0',
-    pin: '#EF4444',
+    cardBg:   'rgba(255, 232, 218, 0.68)',
+    panelBg:  'rgba(255, 190, 150, 0.50)',
+    border:   'rgba(255, 255, 255, 0.62)',
+    pin:      '#EF4444',
     pinShine: '#FCA5A5',
-    text: '#7C2D12',
-    num: '#FB923C',
-    metaBg: 'rgba(255,255,255,0.55)',
+    pinGlow:  'rgba(239, 68, 68, 0.28)',
+    text:     '#7C2D12',
+    num:      '#FB923C',
+    metaBg:   'rgba(255,255,255,0.52)',
+    actionBg: 'rgba(255,255,255,0.32)',
+    shadow:   '0 20px 48px rgba(239,68,68,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
   },
   // 1 — sky blue
   {
-    bg: '#F0F8FF',
-    panel: '#BAE0FD',
-    pin: '#2563EB',
+    cardBg:   'rgba(218, 240, 255, 0.68)',
+    panelBg:  'rgba(140, 206, 255, 0.50)',
+    border:   'rgba(255, 255, 255, 0.62)',
+    pin:      '#2563EB',
     pinShine: '#93C5FD',
-    text: '#1E3A8A',
-    num: '#60A5FA',
-    metaBg: 'rgba(255,255,255,0.55)',
+    pinGlow:  'rgba(37, 99, 235, 0.28)',
+    text:     '#1E3A8A',
+    num:      '#60A5FA',
+    metaBg:   'rgba(255,255,255,0.52)',
+    actionBg: 'rgba(255,255,255,0.32)',
+    shadow:   '0 20px 48px rgba(37,99,235,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
   },
   // 2 — lavender / purple
   {
-    bg: '#FAF5FF',
-    panel: '#E9D5FF',
-    pin: '#7C3AED',
+    cardBg:   'rgba(240, 228, 255, 0.68)',
+    panelBg:  'rgba(200, 168, 255, 0.50)',
+    border:   'rgba(255, 255, 255, 0.62)',
+    pin:      '#7C3AED',
     pinShine: '#C4B5FD',
-    text: '#4C1D95',
-    num: '#A78BFA',
-    metaBg: 'rgba(255,255,255,0.55)',
+    pinGlow:  'rgba(124, 58, 237, 0.28)',
+    text:     '#4C1D95',
+    num:      '#A78BFA',
+    metaBg:   'rgba(255,255,255,0.52)',
+    actionBg: 'rgba(255,255,255,0.32)',
+    shadow:   '0 20px 48px rgba(124,58,237,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
   },
-  // 3 — warm amber / beige
+  // 3 — warm amber / golden
   {
-    bg: '#FFFBEB',
-    panel: '#FDE68A',
-    pin: '#D97706',
+    cardBg:   'rgba(255, 248, 218, 0.68)',
+    panelBg:  'rgba(255, 210, 90, 0.50)',
+    border:   'rgba(255, 255, 255, 0.62)',
+    pin:      '#D97706',
     pinShine: '#FCD34D',
-    text: '#78350F',
-    num: '#F59E0B',
-    metaBg: 'rgba(255,255,255,0.55)',
+    pinGlow:  'rgba(217, 119, 6, 0.28)',
+    text:     '#78350F',
+    num:      '#F59E0B',
+    metaBg:   'rgba(255,255,255,0.52)',
+    actionBg: 'rgba(255,255,255,0.32)',
+    shadow:   '0 20px 48px rgba(217,119,6,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
   },
   // 4 — pale indigo
   {
-    bg: '#EEF2FF',
-    panel: '#C7D2FE',
-    pin: '#4F46E5',
+    cardBg:   'rgba(225, 232, 255, 0.68)',
+    panelBg:  'rgba(170, 188, 255, 0.50)',
+    border:   'rgba(255, 255, 255, 0.62)',
+    pin:      '#4F46E5',
     pinShine: '#A5B4FC',
-    text: '#312E81',
-    num: '#818CF8',
-    metaBg: 'rgba(255,255,255,0.55)',
+    pinGlow:  'rgba(79, 70, 229, 0.28)',
+    text:     '#312E81',
+    num:      '#818CF8',
+    metaBg:   'rgba(255,255,255,0.52)',
+    actionBg: 'rgba(255,255,255,0.32)',
+    shadow:   '0 20px 48px rgba(79,70,229,0.13), 0 4px 16px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.65)',
   },
 ];
 
-// Slight but varied rotations — alternating direction reinforces zigzag feel
 const ROTATIONS = ['-2deg', '1.8deg', '-1.2deg', '2.4deg', '-1.6deg'];
-const FA_NUMS = ['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'];
+const FA_NUMS   = ['۰۱', '۰۲', '۰۳', '۰۴', '۰۵'];
 
-// ─── Pin ─────────────────────────────────────────────────────────────────────
+// ─── Glass pin ────────────────────────────────────────────────────────────────
 
-function Pin({ color, shine }: { color: string; shine: string }) {
+function Pin({ color, shine, glow }: { color: string; shine: string; glow: string }) {
   return (
     <div
       className="absolute -top-5 left-1/2 -translate-x-1/2 z-20 w-9 h-9 rounded-full flex items-center justify-center"
       style={{
         backgroundColor: color,
-        boxShadow: `0 4px 10px ${color}88, 0 0 0 3px white`,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxShadow: `0 4px 14px ${glow}, 0 0 0 3px rgba(255,255,255,0.82), 0 0 0 5px ${glow}`,
       }}
     >
-      {/* shine dot */}
+      {/* crescent shine */}
       <div
-        className="w-2.5 h-2.5 rounded-full"
-        style={{ backgroundColor: shine, opacity: 0.8 }}
+        className="absolute top-1 right-1 w-2 h-2 rounded-full opacity-70"
+        style={{ backgroundColor: 'rgba(255,255,255,0.85)' }}
+      />
+      {/* center dot */}
+      <div
+        className="w-2 h-2 rounded-full"
+        style={{ backgroundColor: shine, opacity: 0.88 }}
       />
     </div>
   );
@@ -106,19 +136,22 @@ interface FloatingTaskCardProps {
 export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
   const { completeTask, deleteTask, updateTask } = useTasks();
   const { addToast } = useToast();
-  const [showEdit, setShowEdit] = useState(false);
+  const [showEdit,   setShowEdit]   = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const [hovered,    setHovered]    = useState(false);
+  const [wobbling,   setWobbling]   = useState(false);
 
-  const c = PALETTE[index % PALETTE.length];
+  const c        = PALETTE[index % PALETTE.length];
   const rotation = ROTATIONS[index % ROTATIONS.length];
-  const faNum = FA_NUMS[Math.min(index, 4)];
+  const faNum    = FA_NUMS[Math.min(index, 4)];
+
+  // ── Task actions ─────────────────────────────────────────────────
 
   function handleComplete() {
     completeTask(task.id);
     addToast(
       task.recurrence !== 'none' ? 'انجام شد. نسخه بعدی ایجاد شد ✓' : 'وظیفه انجام شد ✓',
-      'success'
+      'success',
     );
   }
 
@@ -133,145 +166,200 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
     addToast('وظیفه ویرایش شد ✓', 'success');
   }
 
-  const cardTransform = hovered
-    ? 'rotate(0deg) translateY(-6px) scale(1.025)'
+  // ── Wobble ───────────────────────────────────────────────────────
+
+  function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
+    // Only wobble when the user clicks the card body, not its action buttons
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (wobbling) return;
+    setWobbling(true);
+  }
+
+  function handleAnimationEnd() {
+    setWobbling(false);
+  }
+
+  // ── Outer wrapper transform (hover lift vs. resting rotation) ────
+
+  const outerTransform = hovered
+    ? 'rotate(0deg) translateY(-8px) scale(1.03)'
     : `rotate(${rotation})`;
+
+  const outerFilter = hovered
+    ? 'drop-shadow(0 28px 40px rgba(0,0,0,0.20))'
+    : 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))';
 
   return (
     <>
+      {/* ── Outer wrapper: handles rotation & hover lift ─────────── */}
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative w-72 sm:w-80 flex-shrink-0"
+        onClick={handleCardClick}
+        className="glass-card-wrapper relative w-72 sm:w-80 flex-shrink-0 cursor-pointer"
         style={{
-          transform: cardTransform,
-          transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease',
-          filter: hovered ? 'drop-shadow(0 20px 30px rgba(0,0,0,0.18))' : 'drop-shadow(0 6px 16px rgba(0,0,0,0.10))',
+          transform: outerTransform,
+          filter:    outerFilter,
           zIndex: hovered ? 20 : 'auto',
         }}
       >
-        {/* Push pin */}
-        <Pin color={c.pin} shine={c.pinShine} />
-
-        {/* Card shell */}
+        {/* ── Inner wrapper: wobble animation pivoting at the pin ── */}
         <div
-          className={`rounded-2xl overflow-hidden border border-white/80 transition-opacity duration-300 ${task.completed ? 'opacity-55' : ''}`}
-          style={{ backgroundColor: c.bg }}
+          className={wobbling ? 'card-wobble' : undefined}
+          onAnimationEnd={handleAnimationEnd}
         >
-          {/* Colored inner panel */}
-          <div className="m-3.5 rounded-xl p-4 relative overflow-hidden" style={{ backgroundColor: c.panel }}>
-            {/* Subtle paper texture lines inside panel */}
+          {/* Push pin */}
+          <Pin color={c.pin} shine={c.pinShine} glow={c.pinGlow} />
+
+          {/* Card shell — glassmorphism */}
+          <div
+            className={`glass-card-shell rounded-2xl overflow-hidden border transition-opacity duration-300 ${task.completed ? 'opacity-55' : ''}`}
+            style={{
+              backgroundColor: c.cardBg,
+              borderColor: c.border,
+              boxShadow: c.shadow,
+            }}
+          >
+            {/* Top edge reflection (full-width frosted highlight) */}
             <div
-              className="absolute inset-0 rounded-xl"
+              className="absolute top-0 left-0 right-0 h-20 pointer-events-none rounded-t-2xl z-10"
               style={{
-                backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 23px,rgba(255,255,255,0.35) 24px)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 100%)',
               }}
+              aria-hidden="true"
             />
 
-            {/* Task number */}
+            {/* ── Colored inner panel ─────────────────────────────── */}
             <div
-              className="relative text-5xl font-black leading-none mb-3 select-none"
-              style={{ color: c.num, opacity: 0.55, direction: 'ltr', textAlign: 'left' }}
+              className="m-3.5 rounded-xl p-4 relative overflow-hidden"
+              style={{ backgroundColor: c.panelBg, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
             >
-              {faNum}
-            </div>
+              {/* Paper rule lines */}
+              <div
+                className="absolute inset-0 rounded-xl pointer-events-none"
+                style={{
+                  backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 23px,rgba(255,255,255,0.30) 24px)',
+                }}
+              />
 
-            {/* Title */}
-            <h3
-              className={`relative text-base font-bold leading-snug mb-1 ${task.completed ? 'line-through' : ''}`}
-              style={{ color: c.text }}
-            >
-              {task.title}
-            </h3>
+              {/* Diagonal reflection on panel */}
+              <div
+                className="absolute top-0 right-0 bottom-0 w-3/5 pointer-events-none rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 55%)',
+                }}
+                aria-hidden="true"
+              />
 
-            {/* Description */}
-            {task.description && (
-              <p
-                className="relative text-xs leading-relaxed line-clamp-2 mb-2"
-                style={{ color: c.text, opacity: 0.7 }}
+              {/* Task number */}
+              <div
+                className="relative text-5xl font-black leading-none mb-3 select-none"
+                style={{ color: c.num, opacity: 0.52, direction: 'ltr', textAlign: 'left' }}
               >
-                {task.description}
-              </p>
-            )}
+                {faNum}
+              </div>
 
-            {/* Meta chips */}
-            <div className="relative flex flex-wrap gap-1.5 mt-2">
-              {task.time && (
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: c.metaBg, color: c.text }}
+              {/* Title */}
+              <h3
+                className={`relative text-base font-bold leading-snug mb-1 ${task.completed ? 'line-through' : ''}`}
+                style={{ color: c.text }}
+              >
+                {task.title}
+              </h3>
+
+              {/* Description */}
+              {task.description && (
+                <p
+                  className="relative text-xs leading-relaxed line-clamp-2 mb-2"
+                  style={{ color: c.text, opacity: 0.72 }}
                 >
-                  ⏰ {formatTimeFa(task.time)}
-                </span>
+                  {task.description}
+                </p>
               )}
-              {task.category && (
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: c.metaBg, color: c.text }}
-                >
-                  {task.category}
-                </span>
-              )}
-              {task.recurrence !== 'none' && (
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: c.metaBg, color: c.text }}
-                >
-                  🔁 {RECURRENCE_LABELS[task.recurrence]}
-                </span>
-              )}
-              {task.reminderEnabled && task.time && !task.reminderSentAt && (
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: c.metaBg, color: c.text }}
-                >
-                  🔔
-                </span>
-              )}
+
+              {/* Meta chips */}
+              <div className="relative flex flex-wrap gap-1.5 mt-2">
+                {task.time && (
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: c.metaBg, color: c.text, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                  >
+                    ⏰ {formatTimeFa(task.time)}
+                  </span>
+                )}
+                {task.category && (
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: c.metaBg, color: c.text, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                  >
+                    {task.category}
+                  </span>
+                )}
+                {task.recurrence !== 'none' && (
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: c.metaBg, color: c.text, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                  >
+                    🔁 {RECURRENCE_LABELS[task.recurrence]}
+                  </span>
+                )}
+                {task.reminderEnabled && task.time && !task.reminderSentAt && (
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: c.metaBg, color: c.text, backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                  >
+                    🔔
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Action strip */}
-          <div className="px-4 py-3 flex items-center justify-between">
-            {/* Complete */}
-            <button
-              onClick={handleComplete}
-              disabled={task.completed}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
-              style={{ backgroundColor: task.completed ? '#10B981' : c.pin }}
+            {/* ── Action strip ────────────────────────────────────── */}
+            <div
+              className="px-4 py-3 flex items-center justify-between"
+              style={{ backgroundColor: c.actionBg, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
             >
-              {task.completed ? (
-                <> ✓ انجام شد</>
-              ) : (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              <button
+                onClick={handleComplete}
+                disabled={task.completed}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all active:scale-95 disabled:opacity-60 disabled:cursor-default"
+                style={{
+                  backgroundColor: task.completed ? '#10B981' : c.pin,
+                  boxShadow: `0 2px 10px ${c.pinGlow}`,
+                }}
+              >
+                {task.completed ? (
+                  <> ✓ انجام شد</>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    انجام شد
+                  </>
+                )}
+              </button>
+
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setShowEdit(true)}
+                  aria-label="ویرایش"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-white/40 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  انجام شد
-                </>
-              )}
-            </button>
-
-            {/* Edit / Delete */}
-            <div className="flex gap-1">
-              <button
-                onClick={() => setShowEdit(true)}
-                aria-label="ویرایش"
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setShowDelete(true)}
-                aria-label="حذف"
-                className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                </button>
+                <button
+                  onClick={() => setShowDelete(true)}
+                  aria-label="حذف"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50/60 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -283,8 +371,7 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
         onClose={() => setShowEdit(false)}
         onSubmit={data =>
           handleEdit({
-            ...task,
-            ...data,
+            ...task, ...data,
             id: task.id,
             createdAt: task.createdAt,
             completedAt: task.completedAt,
