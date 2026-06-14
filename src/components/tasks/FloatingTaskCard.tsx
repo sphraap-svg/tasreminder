@@ -139,6 +139,7 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
   const [showEdit,   setShowEdit]   = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [hovered,    setHovered]    = useState(false);
+  const [pressed,    setPressed]    = useState(false);
   const [wobbling,   setWobbling]   = useState(false);
 
   const c        = PALETTE[index % PALETTE.length];
@@ -166,10 +167,14 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
     addToast('وظیفه ویرایش شد ✓', 'success');
   }
 
-  // ── Wobble ───────────────────────────────────────────────────────
+  // ── Interaction handlers (pointer events cover mouse + touch) ────
 
-  function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
-    // Only wobble when the user clicks the card body, not its action buttons
+  function handlePointerEnter() { setHovered(true); }
+  function handlePointerLeave() { setHovered(false); setPressed(false); }
+  function handlePointerDown()  { setPressed(true); }
+  function handlePointerUp()    { setPressed(false); }
+
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if ((e.target as HTMLElement).closest('button')) return;
     if (wobbling) return;
     setWobbling(true);
@@ -179,29 +184,31 @@ export function FloatingTaskCard({ task, index }: FloatingTaskCardProps) {
     setWobbling(false);
   }
 
-  // ── Outer wrapper transform (hover lift vs. resting rotation) ────
+  // ── CSS class composition (all transforms live in CSS, not JS) ───
+  //
+  // Priority order in CSS: card-pressed > card-hovered > base.
+  // Both classes can be active simultaneously; the later CSS rule wins.
 
-  const outerTransform = hovered
-    ? 'rotate(0deg) translateY(-8px) scale(1.03)'
-    : `rotate(${rotation})`;
-
-  const outerFilter = hovered
-    ? 'drop-shadow(0 28px 40px rgba(0,0,0,0.20))'
-    : 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))';
+  const wrapperClass = [
+    'glass-card-wrapper relative w-72 sm:w-80 flex-shrink-0 cursor-pointer',
+    hovered   ? 'card-hovered'  : '',
+    pressed   ? 'card-pressed'  : '',
+    wobbling  ? 'card-wobbling' : '',
+  ].filter(Boolean).join(' ');
 
   return (
     <>
-      {/* ── Outer wrapper: handles rotation & hover lift ─────────── */}
+      {/* ── Outer wrapper: CSS classes drive all transforms ──────── */}
       <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onClick={handleCardClick}
-        className="glass-card-wrapper relative w-72 sm:w-80 flex-shrink-0 cursor-pointer"
-        style={{
-          transform: outerTransform,
-          filter:    outerFilter,
-          zIndex: hovered ? 20 : 'auto',
-        }}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerLeave}
+        onClick={handleClick}
+        className={wrapperClass}
+        // Only the per-card base rotation is set here; everything else is CSS
+        style={{ '--card-rot': rotation } as React.CSSProperties}
       >
         {/* ── Inner wrapper: wobble animation pivoting at the pin ── */}
         <div

@@ -84,56 +84,150 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   GLASS CARD — backdrop-filter + wrapper
+   GLASS CARD — wrapper, states, shimmer, wobble
    ══════════════════════════════════════════════════════════════════ */
 
-/* Applied to the card outer shell */
+/*
+ * EASING GUIDE (adjust durations here to retune the whole card feel):
+ *   --ease-out-soft  : cubic-bezier(0.22, 1, 0.36, 1)   → silky deceleration, no overshoot
+ *   --ease-out-quick : cubic-bezier(0.16, 1, 0.3,  1)   → faster settle, natural finish
+ *
+ * DURATIONS:
+ *   Hover lift  : 560ms  (feel free to raise to 700ms for even dreamier)
+ *   Hover shadow: 640ms
+ *   Press in    : 130ms  (snappy response)
+ *   Press out   : 460ms  (gentle spring back)
+ *   Wobble      : 1 200ms
+ *   Shimmer     : 680ms
+ */
+
+/* ── Outer card wrapper ─────────────────────────────────────────── */
+
+.glass-card-wrapper {
+  /* Per-card rotation stored as CSS variable — set via inline style in React */
+  --card-rot: 0deg;
+
+  position: relative;
+  transform-origin: top center;     /* pin is at top: movement feels anchored there */
+
+  /* Resting state */
+  transform: rotate(var(--card-rot));
+  filter: drop-shadow(0 5px 18px rgba(0,0,0,0.09)) drop-shadow(0 1px 4px rgba(0,0,0,0.06));
+
+  /* Smooth transition for all interaction states */
+  transition:
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter    640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* HOVER — gentle float: slight level + lift + barely perceptible scale */
+.glass-card-wrapper.card-hovered {
+  transform: rotate(0deg) translateY(-6px) scale(1.016);
+  filter:
+    drop-shadow(0 18px 30px rgba(0,0,0,0.15))
+    drop-shadow(0 5px 12px rgba(0,0,0,0.08));
+  z-index: 20;
+  will-change: transform;
+}
+
+/* PRESSED without hover (edge case) — squish in place, fast in */
+.glass-card-wrapper.card-pressed:not(.card-hovered) {
+  transform: rotate(var(--card-rot)) translateY(2px) scale(0.977);
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.08));
+  transition:
+    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter    120ms ease;
+  will-change: transform;
+}
+
+/* PRESSED while hovering — press down from float, fast in */
+.glass-card-wrapper.card-hovered.card-pressed {
+  transform: rotate(0deg) translateY(0px) scale(0.977);
+  filter:
+    drop-shadow(0 8px 16px rgba(0,0,0,0.12))
+    drop-shadow(0 2px 6px rgba(0,0,0,0.06));
+  transition:
+    transform 130ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter    120ms ease;
+  will-change: transform;
+}
+
+/* ── Glass card shell ───────────────────────────────────────────── */
+
 .glass-card-shell {
+  position: relative;               /* anchor for ::after shimmer */
   backdrop-filter: blur(18px) saturate(170%);
   -webkit-backdrop-filter: blur(18px) saturate(170%);
 }
 
-/* Muted palette in dark mode via brightness filter */
+/* Hover shimmer — a soft diagonal light sweep across the card face */
+.glass-card-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  pointer-events: none;
+  z-index: 15;
+  transition: background 680ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glass-card-wrapper.card-hovered .glass-card-shell::after {
+  background: linear-gradient(
+    128deg,
+    rgba(255, 255, 255, 0.17) 0%,
+    rgba(255, 255, 255, 0.06) 42%,
+    rgba(255, 255, 255, 0)    68%
+  );
+}
+
+/* Dark mode palette muting */
 .dark .glass-card-shell {
   filter: saturate(0.82) brightness(0.78);
 }
 
-/* Applied to the outer wrapper — lets us cut transitions in reduced-motion */
-.glass-card-wrapper {
-  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.28s ease;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   WOBBLE animation — inner card bends around the top pin
-   ══════════════════════════════════════════════════════════════════ */
+/* ── Wobble animation — inner div pivots at the top pin ────────── */
+/*
+ * Values kept deliberately small:
+ *   skewX  : ±0.72 deg max  (paper bends, doesn't distort)
+ *   rotate : ±0.28 deg max  (barely perceptible micro-rotate)
+ *   translateY: 5 px max    (gentle float, not a bounce)
+ * Easing: fast start, very long tail settle — like paper losing momentum.
+ */
 
 @keyframes card-wobble {
-  0%   { transform: skewX(0deg)    translateY(0px);    }
-  10%  { transform: skewX(-2.2deg) translateY(7px);    }
-  24%  { transform: skewX(1.6deg)  translateY(-4px);   }
-  40%  { transform: skewX(-1.1deg) translateY(4px);    }
-  55%  { transform: skewX(0.65deg) translateY(-2px);   }
-  70%  { transform: skewX(-0.35deg) translateY(1px);   }
-  84%  { transform: skewX(0.15deg) translateY(-0.4px); }
-  100% { transform: skewX(0deg)    translateY(0px);    }
+  0%   { transform: none; }
+  7%   { transform: translateY(5px)    skewX(-0.72deg) rotate(-0.28deg); }
+  19%  { transform: translateY(-2.8px) skewX( 0.50deg) rotate( 0.22deg); }
+  33%  { transform: translateY(2.2px)  skewX(-0.34deg) rotate(-0.15deg); }
+  48%  { transform: translateY(-1.4px) skewX( 0.20deg) rotate( 0.10deg); }
+  63%  { transform: translateY(0.85px) skewX(-0.11deg) rotate(-0.05deg); }
+  78%  { transform: translateY(-0.4px) skewX( 0.05deg); }
+  90%  { transform: translateY(0.15px); }
+  100% { transform: none; }
 }
 
 .card-wobble {
-  animation: card-wobble 0.66s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  /* 1 200ms lets the long tail decay gracefully */
+  animation: card-wobble 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   transform-origin: top center;
+  will-change: transform;
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   REDUCED MOTION — respect user preference
+   REDUCED MOTION — hard cut to instant for users who prefer it
    ══════════════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-  .card-wobble {
-    animation: none;
-  }
-  .glass-card-wrapper {
+  .card-wobble { animation: none; }
+
+  .glass-card-wrapper,
+  .glass-card-wrapper.card-pressed:not(.card-hovered),
+  .glass-card-wrapper.card-hovered.card-pressed {
     transition: none !important;
   }
+
+  .glass-card-shell::after { transition: none !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════════
