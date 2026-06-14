@@ -25,10 +25,22 @@ interface ArchiveItemProps {
 
 function ArchiveItem({ task, onRestore, onDelete }: ArchiveItemProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  function handleRestore() {
+    setIsLeaving(true);
+    setTimeout(() => onRestore(task.id), 210);
+  }
+
+  function handleDelete() {
+    setShowDeleteConfirm(false);
+    setIsLeaving(true);
+    setTimeout(() => onDelete(task.id), 210);
+  }
 
   return (
     <>
-      <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 group">
+      <div className={`task-item task-item--done${isLeaving ? ' leaving' : ''} flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 group`}>
         {/* Checkmark */}
         <div className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500">
           <svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -64,7 +76,7 @@ function ArchiveItem({ task, onRestore, onDelete }: ArchiveItemProps) {
         {/* Actions */}
         <div className="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onRestore(task.id)}
+            onClick={handleRestore}
             title="بازگرداندن"
             className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
           >
@@ -74,6 +86,7 @@ function ArchiveItem({ task, onRestore, onDelete }: ArchiveItemProps) {
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
+            disabled={isLeaving}
             title="حذف دائمی"
             className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
@@ -90,10 +103,7 @@ function ArchiveItem({ task, onRestore, onDelete }: ArchiveItemProps) {
         message={`وظیفه «${task.title}» برای همیشه حذف شود؟`}
         confirmLabel="حذف دائمی"
         danger
-        onConfirm={() => {
-          onDelete(task.id);
-          setShowDeleteConfirm(false);
-        }}
+        onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
     </>

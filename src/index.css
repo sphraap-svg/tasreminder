@@ -276,3 +276,91 @@
     transition: none !important;
   }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   TASK ITEM — enter / leave animations + hover shine
+   ════════════════════════════════════════════════════════════════════ */
+
+@keyframes task-item-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes task-item-leave {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.97);
+  }
+}
+
+/* Base — entry animation fires once on DOM mount */
+.task-item {
+  animation: task-item-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  position: relative;
+}
+
+/* Leaving — triggered just before the item is removed from the DOM */
+.task-item.leaving {
+  animation: task-item-leave 0.20s ease-in forwards;
+  pointer-events: none;
+}
+
+/* ── Diagonal shine overlay (::before) ─────────────────────────── */
+/* Paints above content (z-index: auto positioned > normal flow),
+   but pointer-events: none keeps clicks working through it.        */
+.task-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18)  0%,
+    rgba(255, 255, 255, 0.06) 38%,
+    transparent                60%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease;
+}
+
+.task-item:hover::before {
+  opacity: 1;
+}
+
+/* ── Glow box-shadow on hover (non-completed items only) ─────────── */
+.task-item:not(.task-item--done):hover {
+  box-shadow:
+    0 4px 18px rgba(99, 102, 241, 0.10),
+    0 1px 4px  rgba(0,   0,   0,  0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.dark .task-item:not(.task-item--done):hover {
+  box-shadow:
+    0 4px 22px rgba(99, 102, 241, 0.20),
+    0 1px 4px  rgba(0,   0,   0,  0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .task-item,
+  .task-item.leaving {
+    animation: none !important;
+  }
+  .task-item::before {
+    transition: none !important;
+  }
+}

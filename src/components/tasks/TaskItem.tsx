@@ -17,6 +17,7 @@ export function TaskItem({ task }: TaskItemProps) {
   const { addToast } = useToast();
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   function handleComplete() {
     completeTask(task.id);
@@ -29,9 +30,12 @@ export function TaskItem({ task }: TaskItemProps) {
   }
 
   function handleDelete() {
-    deleteTask(task.id);
-    addToast('وظیفه حذف شد', 'info');
     setShowDelete(false);
+    setIsLeaving(true);
+    setTimeout(() => {
+      deleteTask(task.id);
+      addToast('وظیفه حذف شد', 'info');
+    }, 210);
   }
 
   function handleEdit(data: Task) {
@@ -39,17 +43,19 @@ export function TaskItem({ task }: TaskItemProps) {
     addToast('وظیفه ویرایش شد ✓', 'success');
   }
 
+  const itemClass = [
+    'task-item',
+    task.completed ? 'task-item--done' : '',
+    isLeaving ? 'leaving' : '',
+    'group relative flex items-start gap-3 p-4 rounded-2xl border transition-colors duration-200',
+    task.completed
+      ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/50 opacity-60'
+      : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-card',
+  ].filter(Boolean).join(' ');
+
   return (
     <>
-      <div
-        className={`
-          group relative flex items-start gap-3 p-4 rounded-2xl border transition-all duration-200
-          ${task.completed
-            ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/50 opacity-60'
-            : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-card hover:shadow-card-hover'
-          }
-        `}
-      >
+      <div className={itemClass}>
         {/* Completion checkbox */}
         <button
           onClick={handleComplete}
