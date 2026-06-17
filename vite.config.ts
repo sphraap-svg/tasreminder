@@ -19,7 +19,8 @@ export default defineConfig({
         orientation: 'portrait-primary',
         lang: 'fa',
         dir: 'rtl',
-        start_url: '/',
+        start_url: '/tasreminder/',
+        scope: '/tasreminder/',
         icons: [
           {
             src: 'icons/icon-192.png',
