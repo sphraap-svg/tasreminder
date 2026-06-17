@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { TaskProvider } from './context/TaskContext';
 import { ToastProvider } from './context/ToastContext';
@@ -40,7 +40,7 @@ export default function App() {
         <ToastProvider>
           <AuthProvider>
             <WorkspaceProvider>
-              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <HashRouter>
                 <Routes>
                   <Route path="/" element={<Navigate to="/home" replace />} />
                   <Route path="/login" element={<LoginRoute />} />
@@ -55,7 +55,7 @@ export default function App() {
                   </Route>
                   <Route path="*" element={<Navigate to="/home" replace />} />
                 </Routes>
-              </BrowserRouter>
+              </HashRouter>
             </WorkspaceProvider>
           </AuthProvider>
         </ToastProvider>
