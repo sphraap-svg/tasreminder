@@ -10,6 +10,24 @@ export type FilterType =
   | 'priority_medium'
   | 'priority_low';
 
+export interface Note {
+  id: string;
+  date: string; // YYYY-MM-DD
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  time?: string; // HH:mm
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
