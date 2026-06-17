@@ -1,17 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 import { DeskWorkspace, DeskSession, DeskMember, DeskTask, DeskTaskType, DeskTaskStatus } from '../types/desk';
 import { generateId } from '../utils/id';
 import { now } from '../utils/date';
 
-const WS_KEY = 'desk_workspaces';
 const SESSION_KEY = 'desk_session';
 
-function loadWorkspaces(): DeskWorkspace[] {
-  try { return JSON.parse(localStorage.getItem(WS_KEY) ?? '[]'); } catch { return []; }
-}
-function saveWorkspaces(ws: DeskWorkspace[]) {
-  localStorage.setItem(WS_KEY, JSON.stringify(ws));
-}
 function loadSession(): DeskSession | null {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) ?? 'null'); } catch { return null; }
 }
@@ -20,184 +14,187 @@ function saveSession(s: DeskSession | null) {
   else localStorage.removeItem(SESSION_KEY);
 }
 
-function encodeJoinCode(wsId: string, wsName: string): string {
-  const payload = JSON.stringify({ id: wsId, name: wsName });
-  return btoa(unescape(encodeURIComponent(payload)));
-}
-
-function decodeJoinCode(code: string): { id: string; name: string } | null {
-  try {
-    const decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
-    if (decoded?.id && decoded?.name) return decoded;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export function useDesk() {
-  const [workspaces, setWorkspaces] = useState<DeskWorkspace[]>(loadWorkspaces);
   const [session, setSession] = useState<DeskSession | null>(loadSession);
+  const [workspace, setWorkspace] = useState<DeskWorkspace | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const currentWs = workspaces.find(w => w.id === session?.workspaceId) ?? null;
+  const loadWorkspace = useCallback(async (workspaceId: string) => {
+    if (!supabase) return;
+    setLoading(true);
+    try {
+      const { data: ws } = await supabase
+        .from('desk_workspaces')
+        .select('*')
+        .eq('id', workspaceId)
+        .single();
+      if (!ws) { setWorkspace(null); return; }
 
-  function persist(updated: DeskWorkspace[]) {
-    setWorkspaces(updated);
-    saveWorkspaces(updated);
-  }
+      const { data: members } = await supabase
+        .from('desk_members')
+        .select('*')
+        .eq('workspace_id', workspaceId);
 
-  // ── Auth ────────────────────────────────────────────────────────────────────
+      const { data: tasks } = await supabase
+        .from('desk_tasks')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: false });
 
-  const createWorkspace = useCallback((name: string, managerName: string, managerPin: string): string | null => {
+      setWorkspace({
+        id: ws.id,
+        name: ws.name,
+        managerPin: ws.manager_pin,
+        joinCode: ws.join_code,
+        members: (members ?? []).map((m: any) => ({
+          id: m.id, name: m.name, role: m.role, joinedAt: m.joined_at,
+        })),
+        tasks: (tasks ?? []).map((t: any) => ({
+          id: t.id, title: t.title, description: t.description,
+          type: t.type, assignedTo: t.assigned_to, createdBy: t.created_by,
+          status: t.status, createdAt: t.created_at,
+        })),
+        createdAt: ws.created_at,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (session?.workspaceId) loadWorkspace(session.workspaceId);
+    else setWorkspace(null);
+  }, [session, loadWorkspace]);
+
+  // Realtime sync for members and tasks
+  useEffect(() => {
+    if (!supabase || !session?.workspaceId) return;
+    const wsId = session.workspaceId;
+
+    const channel = supabase
+      .channel(`desk-${wsId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_members', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
+      .subscribe();
+
+    return () => { supabase!.removeChannel(channel); };
+  }, [session?.workspaceId, loadWorkspace]);
+
+  const createWorkspace = useCallback(async (name: string, managerName: string, managerPin: string): Promise<string | null> => {
+    if (!supabase) return 'Supabase پیکربندی نشده';
     if (name.trim().length < 2) return 'نام میزکار باید حداقل ۲ حرف باشد';
     if (managerPin.length !== 4 || !/^\d{4}$/.test(managerPin)) return 'پین باید ۴ رقم عددی باشد';
 
-    const managerId = generateId();
     const wsId = generateId();
-    const manager: DeskMember = { id: managerId, name: managerName.trim(), role: 'manager', joinedAt: now() };
-    const ws: DeskWorkspace = {
-      id: wsId,
-      name: name.trim(),
-      managerPin,
-      joinCode: encodeJoinCode(wsId, name.trim()),
-      members: [manager],
-      tasks: [],
-      createdAt: now(),
-    };
-    const updated = [...workspaces, ws];
-    persist(updated);
-    const s: DeskSession = { workspaceId: ws.id, memberId: managerId, role: 'manager', memberName: managerName.trim() };
+    const managerId = generateId();
+    const joinCode = generateId().slice(0, 8).toUpperCase();
+
+    const { error: wsErr } = await supabase.from('desk_workspaces').insert({
+      id: wsId, name: name.trim(), manager_pin: managerPin, join_code: joinCode,
+    });
+    if (wsErr) return wsErr.message;
+
+    const { error: mErr } = await supabase.from('desk_members').insert({
+      id: managerId, workspace_id: wsId, name: managerName.trim(), role: 'manager', joined_at: now(),
+    });
+    if (mErr) return mErr.message;
+
+    const s: DeskSession = { workspaceId: wsId, memberId: managerId, role: 'manager', memberName: managerName.trim() };
     setSession(s);
     saveSession(s);
     return null;
-  }, [workspaces]);
+  }, []);
 
-  const joinWorkspace = useCallback((joinCode: string, memberName: string): string | null => {
+  const joinWorkspace = useCallback(async (joinCode: string, memberName: string): Promise<string | null> => {
+    if (!supabase) return 'Supabase پیکربندی نشده';
     if (!memberName.trim()) return 'نام الزامی است';
 
-    const trimmed = joinCode.trim();
+    const { data: ws } = await supabase
+      .from('desk_workspaces')
+      .select('*')
+      .eq('join_code', joinCode.trim().toUpperCase())
+      .single();
 
-    // same-device: find by stored joinCode
-    let ws = workspaces.find(w => w.joinCode === trimmed);
-
-    // cross-device: decode workspace info from the code itself
-    if (!ws) {
-      const decoded = decodeJoinCode(trimmed);
-      if (!decoded) return 'کد وارد شده معتبر نیست';
-
-      // if workspace already exists locally (different code format), use it
-      ws = workspaces.find(w => w.id === decoded.id);
-
-      if (!ws) {
-        // create a local skeleton of the workspace on this device
-        const skeletonWs: DeskWorkspace = {
-          id: decoded.id,
-          name: decoded.name,
-          managerPin: '',
-          joinCode: trimmed,
-          members: [],
-          tasks: [],
-          createdAt: now(),
-        };
-        const memberId = generateId();
-        const member: DeskMember = { id: memberId, name: memberName.trim(), role: 'member', joinedAt: now() };
-        skeletonWs.members = [member];
-        persist([...workspaces, skeletonWs]);
-        const s: DeskSession = { workspaceId: skeletonWs.id, memberId, role: 'member', memberName: memberName.trim() };
-        setSession(s);
-        saveSession(s);
-        return null;
-      }
-    }
+    if (!ws) return 'کد وارد شده معتبر نیست';
 
     const memberId = generateId();
-    const member: DeskMember = { id: memberId, name: memberName.trim(), role: 'member', joinedAt: now() };
-    const updated = workspaces.map(w =>
-      w.id === ws!.id ? { ...w, members: [...w.members, member] } : w
-    );
-    persist(updated);
+    const { error } = await supabase.from('desk_members').insert({
+      id: memberId, workspace_id: ws.id, name: memberName.trim(), role: 'member', joined_at: now(),
+    });
+    if (error) return error.message;
+
     const s: DeskSession = { workspaceId: ws.id, memberId, role: 'member', memberName: memberName.trim() };
     setSession(s);
     saveSession(s);
     return null;
-  }, [workspaces]);
+  }, []);
 
-  const managerLogin = useCallback((joinCode: string, pin: string): string | null => {
-    const trimmed = joinCode.trim();
-    let ws = workspaces.find(w => w.joinCode === trimmed);
-    if (!ws) {
-      const decoded = decodeJoinCode(trimmed);
-      if (decoded) ws = workspaces.find(w => w.id === decoded.id);
-    }
+  const managerLogin = useCallback(async (joinCode: string, pin: string): Promise<string | null> => {
+    if (!supabase) return 'Supabase پیکربندی نشده';
+
+    const { data: ws } = await supabase
+      .from('desk_workspaces')
+      .select('*')
+      .eq('join_code', joinCode.trim().toUpperCase())
+      .single();
+
     if (!ws) return 'کد میزکار معتبر نیست';
-    if (ws.managerPin !== pin) return 'پین مدیر اشتباه است';
-    const manager = ws.members.find(m => m.role === 'manager');
+    if (ws.manager_pin !== pin) return 'پین مدیر اشتباه است';
+
+    const { data: members } = await supabase
+      .from('desk_members')
+      .select('*')
+      .eq('workspace_id', ws.id)
+      .eq('role', 'manager');
+
+    const manager = members?.[0];
     if (!manager) return 'مدیر یافت نشد';
+
     const s: DeskSession = { workspaceId: ws.id, memberId: manager.id, role: 'manager', memberName: manager.name };
     setSession(s);
     saveSession(s);
     return null;
-  }, [workspaces]);
+  }, []);
 
   const logout = useCallback(() => {
     setSession(null);
     saveSession(null);
+    setWorkspace(null);
   }, []);
 
-  // ── Tasks ───────────────────────────────────────────────────────────────────
-
-  const addTask = useCallback((
-    title: string,
-    type: DeskTaskType,
-    assignedTo?: string,
-    description?: string,
-  ): string | null => {
-    if (!currentWs || !session) return 'خطا';
+  const addTask = useCallback(async (
+    title: string, type: DeskTaskType, assignedTo?: string, description?: string,
+  ): Promise<string | null> => {
+    if (!supabase || !workspace || !session) return 'خطا';
     if (!title.trim()) return 'عنوان الزامی است';
-    const task: DeskTask = {
+
+    const { error } = await supabase.from('desk_tasks').insert({
       id: generateId(),
+      workspace_id: workspace.id,
       title: title.trim(),
-      description: description?.trim() || undefined,
+      description: description?.trim() || null,
       type,
-      assignedTo,
-      createdBy: session.memberId,
+      assigned_to: assignedTo ?? null,
+      created_by: session.memberId,
       status: 'pending',
-      createdAt: now(),
-    };
-    const updated = workspaces.map(w =>
-      w.id === currentWs.id ? { ...w, tasks: [task, ...w.tasks] } : w
-    );
-    persist(updated);
-    return null;
-  }, [currentWs, session, workspaces]);
+      created_at: now(),
+    });
+    return error ? error.message : null;
+  }, [workspace, session]);
 
-  const setTaskStatus = useCallback((taskId: string, status: DeskTaskStatus) => {
-    if (!currentWs) return;
-    const updated = workspaces.map(w =>
-      w.id === currentWs.id
-        ? { ...w, tasks: w.tasks.map(t => t.id === taskId ? { ...t, status } : t) }
-        : w
-    );
-    persist(updated);
-  }, [currentWs, workspaces]);
+  const setTaskStatus = useCallback(async (taskId: string, status: DeskTaskStatus) => {
+    if (!supabase) return;
+    await supabase.from('desk_tasks').update({ status }).eq('id', taskId);
+  }, []);
 
-  const deleteTask = useCallback((taskId: string) => {
-    if (!currentWs) return;
-    const updated = workspaces.map(w =>
-      w.id === currentWs.id ? { ...w, tasks: w.tasks.filter(t => t.id !== taskId) } : w
-    );
-    persist(updated);
-  }, [currentWs, workspaces]);
+  const deleteTask = useCallback(async (taskId: string) => {
+    if (!supabase) return;
+    await supabase.from('desk_tasks').delete().eq('id', taskId);
+  }, []);
 
   return {
-    session,
-    workspace: currentWs,
-    createWorkspace,
-    joinWorkspace,
-    managerLogin,
-    logout,
-    addTask,
-    setTaskStatus,
-    deleteTask,
+    session, workspace, loading,
+    createWorkspace, joinWorkspace, managerLogin, logout,
+    addTask, setTaskStatus, deleteTask,
   };
 }

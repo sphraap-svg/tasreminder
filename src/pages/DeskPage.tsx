@@ -235,7 +235,7 @@ function AddTaskModal({
 }: {
   members: DeskMember[];
   onClose: () => void;
-  onAdd: (title: string, type: 'public' | 'personal', assignedTo?: string, desc?: string) => string | null;
+  onAdd: (title: string, type: 'public' | 'personal', assignedTo?: string, desc?: string) => Promise<string | null>;
 }) {
   const [title, setTitle] = useState('');
   const [type, setType] = useState<'public' | 'personal'>('public');
@@ -243,9 +243,9 @@ function AddTaskModal({
   const [desc, setDesc] = useState('');
   const [err, setErr] = useState('');
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const error = onAdd(title, type, type === 'personal' ? (assignedTo || undefined) : undefined, desc);
+    const error = await onAdd(title, type, type === 'personal' ? (assignedTo || undefined) : undefined, desc);
     if (error) setErr(error);
     else onClose();
   }
@@ -441,9 +441,9 @@ function MemberFolderCard({
 
 // ── Login Screen ──────────────────────────────────────────────────────────────
 function LoginScreen({ createWorkspace, joinWorkspace, managerLogin }: {
-  createWorkspace: (name: string, managerName: string, pin: string) => string | null;
-  joinWorkspace: (code: string, name: string) => string | null;
-  managerLogin: (code: string, pin: string) => string | null;
+  createWorkspace: (name: string, managerName: string, pin: string) => Promise<string | null>;
+  joinWorkspace: (code: string, name: string) => Promise<string | null>;
+  managerLogin: (code: string, pin: string) => Promise<string | null>;
 }) {
   const [tab, setTab] = useState<'join' | 'create' | 'manager'>('join');
 
@@ -460,19 +460,19 @@ function LoginScreen({ createWorkspace, joinWorkspace, managerLogin }: {
   const [mPin, setMPin] = useState('');
   const [mErr, setMErr] = useState('');
 
-  function handleJoin(e: React.FormEvent) {
+  async function handleJoin(e: React.FormEvent) {
     e.preventDefault();
-    const err = joinWorkspace(joinCode, joinName);
+    const err = await joinWorkspace(joinCode, joinName);
     if (err) setJoinErr(err); else setJoinErr('');
   }
-  function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const err = createWorkspace(wsName, managerName, pin);
+    const err = await createWorkspace(wsName, managerName, pin);
     if (err) setCreateErr(err); else setCreateErr('');
   }
-  function handleManagerLogin(e: React.FormEvent) {
+  async function handleManagerLogin(e: React.FormEvent) {
     e.preventDefault();
-    const err = managerLogin(mCode, mPin);
+    const err = await managerLogin(mCode, mPin);
     if (err) setMErr(err); else setMErr('');
   }
 
