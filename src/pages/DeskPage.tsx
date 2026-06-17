@@ -440,8 +440,11 @@ function MemberFolderCard({
 }
 
 // ── Login Screen ──────────────────────────────────────────────────────────────
-function LoginScreen() {
-  const { createWorkspace, joinWorkspace, managerLogin } = useDesk();
+function LoginScreen({ createWorkspace, joinWorkspace, managerLogin }: {
+  createWorkspace: (name: string, managerName: string, pin: string) => string | null;
+  joinWorkspace: (code: string, name: string) => string | null;
+  managerLogin: (code: string, pin: string) => string | null;
+}) {
   const [tab, setTab] = useState<'join' | 'create' | 'manager'>('join');
 
   const [joinCode, setJoinCode] = useState('');
@@ -554,13 +557,13 @@ function LoginScreen() {
 
 // ── Main DeskPage ─────────────────────────────────────────────────────────────
 export function DeskPage() {
-  const { session, workspace, logout, addTask, setTaskStatus, deleteTask } = useDesk();
+  const { session, workspace, logout, addTask, setTaskStatus, deleteTask, createWorkspace, joinWorkspace, managerLogin } = useDesk();
   const [showAdd, setShowAdd] = useState(false);
   const [tab, setTab] = useState<'public' | 'personal' | 'by-member'>('public');
   const [showCode, setShowCode] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
-  if (!session || !workspace) return <LoginScreen />;
+  if (!session || !workspace) return <LoginScreen createWorkspace={createWorkspace} joinWorkspace={joinWorkspace} managerLogin={managerLogin} />;
 
   const isManager = session.role === 'manager';
   const members = workspace.members;
