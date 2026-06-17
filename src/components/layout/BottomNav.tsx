@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { isSupabaseConfigured } from '../../lib/supabase';
 
 const BASE_NAV_ITEMS = [
   {
@@ -40,6 +39,15 @@ const BASE_NAV_ITEMS = [
     ),
   },
   {
+    to: '/desk',
+    label: 'میزکار',
+    icon: (active: boolean) => (
+      <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+  },
+  {
     to: '/settings',
     label: 'تنظیمات',
     icon: (active: boolean) => (
@@ -50,19 +58,7 @@ const BASE_NAV_ITEMS = [
   },
 ];
 
-const WORKSPACE_NAV_ITEM = {
-  to: '/workspace',
-  label: 'تیم',
-  icon: (active: boolean) => (
-    <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  ),
-};
-
-const NAV_ITEMS = isSupabaseConfigured
-  ? [...BASE_NAV_ITEMS, WORKSPACE_NAV_ITEM]
-  : BASE_NAV_ITEMS;
+const NAV_ITEMS = BASE_NAV_ITEMS;
 
 export function BottomNav() {
   return (

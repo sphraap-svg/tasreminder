@@ -14,6 +14,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { WorkspacePage } from './pages/WorkspacePage';
 import { CalendarPage } from './pages/CalendarPage';
+import { DeskPage } from './pages/DeskPage';
 import { isSupabaseConfigured } from './lib/supabase';
 import { useAuth } from './context/AuthContext';
 
@@ -49,6 +50,7 @@ export default function App() {
                     <Route path="/today" element={<TodayPage />} />
                     <Route path="/week" element={<WeekPage />} />
                     <Route path="/calendar" element={<CalendarPage />} />
+                    <Route path="/desk" element={<DeskPage />} />
                     <Route path="/archive" element={<ArchivePage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/workspace" element={<WorkspaceRoute />} />
