@@ -20,8 +20,19 @@ function saveSession(s: DeskSession | null) {
   else localStorage.removeItem(SESSION_KEY);
 }
 
-function makeJoinCode(): string {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+function encodeJoinCode(wsId: string, wsName: string): string {
+  const payload = JSON.stringify({ id: wsId, name: wsName });
+  return btoa(unescape(encodeURIComponent(payload)));
+}
+
+function decodeJoinCode(code: string): { id: string; name: string } | null {
+  try {
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
+    if (decoded?.id && decoded?.name) return decoded;
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export function useDesk() {
@@ -42,12 +53,13 @@ export function useDesk() {
     if (managerPin.length !== 4 || !/^\d{4}$/.test(managerPin)) return 'پین باید ۴ رقم عددی باشد';
 
     const managerId = generateId();
+    const wsId = generateId();
     const manager: DeskMember = { id: managerId, name: managerName.trim(), role: 'manager', joinedAt: now() };
     const ws: DeskWorkspace = {
-      id: generateId(),
+      id: wsId,
       name: name.trim(),
       managerPin,
-      joinCode: makeJoinCode(),
+      joinCode: encodeJoinCode(wsId, name.trim()),
       members: [manager],
       tasks: [],
       createdAt: now(),
@@ -61,14 +73,47 @@ export function useDesk() {
   }, [workspaces]);
 
   const joinWorkspace = useCallback((joinCode: string, memberName: string): string | null => {
-    const ws = workspaces.find(w => w.joinCode === joinCode.trim().toUpperCase());
-    if (!ws) return 'کد وارد شده معتبر نیست';
     if (!memberName.trim()) return 'نام الزامی است';
+
+    const trimmed = joinCode.trim();
+
+    // same-device: find by stored joinCode
+    let ws = workspaces.find(w => w.joinCode === trimmed);
+
+    // cross-device: decode workspace info from the code itself
+    if (!ws) {
+      const decoded = decodeJoinCode(trimmed);
+      if (!decoded) return 'کد وارد شده معتبر نیست';
+
+      // if workspace already exists locally (different code format), use it
+      ws = workspaces.find(w => w.id === decoded.id);
+
+      if (!ws) {
+        // create a local skeleton of the workspace on this device
+        const skeletonWs: DeskWorkspace = {
+          id: decoded.id,
+          name: decoded.name,
+          managerPin: '',
+          joinCode: trimmed,
+          members: [],
+          tasks: [],
+          createdAt: now(),
+        };
+        const memberId = generateId();
+        const member: DeskMember = { id: memberId, name: memberName.trim(), role: 'member', joinedAt: now() };
+        skeletonWs.members = [member];
+        persist([...workspaces, skeletonWs]);
+        const s: DeskSession = { workspaceId: skeletonWs.id, memberId, role: 'member', memberName: memberName.trim() };
+        setSession(s);
+        saveSession(s);
+        return null;
+      }
+    }
 
     const memberId = generateId();
     const member: DeskMember = { id: memberId, name: memberName.trim(), role: 'member', joinedAt: now() };
     const updated = workspaces.map(w =>
-      w.id === ws.id ? { ...w, members: [...w.members, member] } : w
+      w.id === ws!.id ? { ...w, members: [...w.members, member] } : w
     );
     persist(updated);
     const s: DeskSession = { workspaceId: ws.id, memberId, role: 'member', memberName: memberName.trim() };
