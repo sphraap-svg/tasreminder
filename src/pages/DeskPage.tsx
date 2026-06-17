@@ -2,186 +2,44 @@ import React, { useState } from 'react';
 import { useDesk } from '../hooks/useDesk';
 import { DeskMember, DeskTask } from '../types/desk';
 
-// ── Shared field style ────────────────────────────────────────────────────────
 const FIELD = 'w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-shadow';
 
-// ── Login / Setup Screen ──────────────────────────────────────────────────────
-function LoginScreen() {
-  const { createWorkspace, joinWorkspace, managerLogin } = useDesk();
-  const [tab, setTab] = useState<'join' | 'create' | 'manager'>('join');
-
-  // Join form
-  const [joinCode, setJoinCode] = useState('');
-  const [joinName, setJoinName] = useState('');
-  const [joinErr, setJoinErr] = useState('');
-
-  // Create form
-  const [wsName, setWsName] = useState('');
-  const [managerName, setManagerName] = useState('');
-  const [pin, setPin] = useState('');
-  const [createErr, setCreateErr] = useState('');
-
-  // Manager login form
-  const [mCode, setMCode] = useState('');
-  const [mPin, setMPin] = useState('');
-  const [mErr, setMErr] = useState('');
-
-  function handleJoin(e: React.FormEvent) {
-    e.preventDefault();
-    const err = joinWorkspace(joinCode, joinName);
-    if (err) setJoinErr(err); else setJoinErr('');
-  }
-
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    const err = createWorkspace(wsName, managerName, pin);
-    if (err) setCreateErr(err); else setCreateErr('');
-  }
-
-  function handleManagerLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const err = managerLogin(mCode, mPin);
-    if (err) setMErr(err); else setMErr('');
-  }
-
+// ── Progress Bar ──────────────────────────────────────────────────────────────
+function ProgressBar({ done, total }: { done: number; total: number }) {
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   return (
-    <div className="flex flex-col gap-6 pt-6 max-w-sm mx-auto">
-      <div className="text-center">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center mx-auto mb-3">
-          <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-emerald-400 rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums w-10 text-left">
+        {pct}٪
+      </span>
+    </div>
+  );
+}
+
+// ── Stats Row ─────────────────────────────────────────────────────────────────
+function StatsRow({ tasks }: { tasks: DeskTask[] }) {
+  const done = tasks.filter(t => t.status === 'done').length;
+  const pending = tasks.length - done;
+  return (
+    <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/60 px-4 py-3 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-4">
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            باقی‌مانده <span className="font-bold text-gray-700 dark:text-gray-200">{pending}</span>
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            انجام شده <span className="font-bold text-emerald-500">{done}</span>
+          </span>
         </div>
-        <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">میزکار</h1>
-        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">مدیریت وظایف تیمی</p>
+        <span className="text-xs text-gray-300 dark:text-gray-600">{tasks.length} وظیفه</span>
       </div>
-
-      {/* Tab switcher */}
-      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
-        {([['join', 'ورود با کد'], ['manager', 'مدیر'], ['create', 'ایجاد میزکار']] as const).map(([val, label]) => (
-          <button
-            key={val}
-            onClick={() => setTab(val)}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-              tab === val
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Join as member */}
-      {tab === 'join' && (
-        <form onSubmit={handleJoin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
-            <input
-              autoFocus
-              type="text"
-              value={joinCode}
-              onChange={e => setJoinCode(e.target.value.toUpperCase())}
-              placeholder="کد را از مدیر بگیرید"
-              className={`${FIELD} tracking-widest font-mono`}
-              maxLength={8}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام شما</label>
-            <input
-              type="text"
-              value={joinName}
-              onChange={e => setJoinName(e.target.value)}
-              placeholder="مثلاً: علی رضایی"
-              className={FIELD}
-            />
-          </div>
-          {joinErr && <p className="text-xs text-red-500">{joinErr}</p>}
-          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">
-            ورود به میزکار
-          </button>
-        </form>
-      )}
-
-      {/* Manager login */}
-      {tab === 'manager' && (
-        <form onSubmit={handleManagerLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
-            <input
-              autoFocus
-              type="text"
-              value={mCode}
-              onChange={e => setMCode(e.target.value.toUpperCase())}
-              placeholder="کد میزکار"
-              className={`${FIELD} tracking-widest font-mono`}
-              maxLength={8}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">پین مدیر (۴ رقم)</label>
-            <input
-              type="password"
-              inputMode="numeric"
-              value={mPin}
-              onChange={e => setMPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="••••"
-              className={`${FIELD} tracking-widest text-center`}
-              maxLength={4}
-            />
-          </div>
-          {mErr && <p className="text-xs text-red-500">{mErr}</p>}
-          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">
-            ورود مدیر
-          </button>
-        </form>
-      )}
-
-      {/* Create workspace */}
-      {tab === 'create' && (
-        <form onSubmit={handleCreate} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام میزکار</label>
-            <input
-              autoFocus
-              type="text"
-              value={wsName}
-              onChange={e => setWsName(e.target.value)}
-              placeholder="مثلاً: تیم فروش اینفینیتی"
-              className={FIELD}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام مدیر</label>
-            <input
-              type="text"
-              value={managerName}
-              onChange={e => setManagerName(e.target.value)}
-              placeholder="نام شما"
-              className={FIELD}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">پین مدیر (۴ رقم عددی)</label>
-            <input
-              type="password"
-              inputMode="numeric"
-              value={pin}
-              onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="••••"
-              className={`${FIELD} tracking-widest text-center`}
-              maxLength={4}
-            />
-            <p className="mt-1 text-[11px] text-gray-400">این پین را نزد خودتان نگه دارید</p>
-          </div>
-          {createErr && <p className="text-xs text-red-500">{createErr}</p>}
-          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">
-            ایجاد میزکار
-          </button>
-        </form>
-      )}
+      <ProgressBar done={done} total={tasks.length} />
     </div>
   );
 }
@@ -208,18 +66,21 @@ function TaskCard({
   const canDelete = isManager;
 
   return (
-    <div className={`flex items-start gap-3 rounded-2xl border px-4 py-3 transition-all ${
+    <div className={`group flex items-start gap-3 rounded-2xl border px-4 py-3.5 transition-all ${
       isDone
-        ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30'
-        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60'
+        ? 'border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/20 opacity-70'
+        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/70 shadow-sm'
     }`}>
+      {/* Checkbox */}
       <button
         onClick={onToggle}
         disabled={!canToggle}
-        className={`mt-0.5 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-          isDone ? 'border-emerald-400 bg-emerald-400' :
-          canToggle ? 'border-gray-300 dark:border-gray-600 hover:border-indigo-400' :
-          'border-gray-200 dark:border-gray-700 opacity-40'
+        className={`mt-0.5 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+          isDone
+            ? 'border-emerald-400 bg-emerald-400'
+            : canToggle
+            ? 'border-gray-300 dark:border-gray-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+            : 'border-gray-200 dark:border-gray-700 opacity-40 cursor-not-allowed'
         }`}
       >
         {isDone && (
@@ -229,29 +90,138 @@ function TaskCard({
         )}
       </button>
 
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium leading-snug ${isDone ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-100'}`}>
+        <p className={`text-sm font-medium leading-snug ${
+          isDone ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-100'
+        }`}>
           {task.title}
         </p>
         {task.description && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{task.description}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed">{task.description}</p>
         )}
         {assignee && (
-          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400">
-            <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/>
-            </svg>
-            {assignee.name}
-          </span>
+          <div className="flex items-center gap-1 mt-1.5">
+            <div className="w-3.5 h-3.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[8px] font-bold text-indigo-600 dark:text-indigo-400">
+              {assignee.name.charAt(0)}
+            </div>
+            <span className="text-[11px] text-indigo-500 dark:text-indigo-400 font-medium">{assignee.name}</span>
+          </div>
         )}
       </div>
 
+      {/* Delete */}
       {canDelete && (
-        <button onClick={onDelete} className="text-gray-300 dark:text-gray-600 hover:text-red-400 transition-colors flex-shrink-0 mt-0.5">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <button
+          onClick={onDelete}
+          className="flex-shrink-0 p-1 rounded-lg text-gray-300 dark:text-gray-700 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all mt-0.5"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
+      )}
+    </div>
+  );
+}
+
+// ── Task Section (pending + done split) ───────────────────────────────────────
+function TaskSection({
+  tasks,
+  members,
+  isManager,
+  currentMemberId,
+  onToggle,
+  onDelete,
+  emptyLabel,
+}: {
+  tasks: DeskTask[];
+  members: DeskMember[];
+  isManager: boolean;
+  currentMemberId: string;
+  onToggle: (id: string, cur: 'pending' | 'done') => void;
+  onDelete: (id: string) => void;
+  emptyLabel: string;
+}) {
+  const [showDone, setShowDone] = useState(false);
+  const pending = tasks.filter(t => t.status === 'pending');
+  const done = tasks.filter(t => t.status === 'done');
+
+  if (tasks.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-8 text-center">
+        <p className="text-sm text-gray-300 dark:text-gray-600">{emptyLabel}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {tasks.length > 0 && <StatsRow tasks={tasks} />}
+
+      {/* Pending tasks */}
+      {pending.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-500">
+              در انتظار ({pending.length})
+            </span>
+          </div>
+          {pending.map(t => (
+            <TaskCard
+              key={t.id}
+              task={t}
+              members={members}
+              isManager={isManager}
+              currentMemberId={currentMemberId}
+              onToggle={() => onToggle(t.id, t.status)}
+              onDelete={() => onDelete(t.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {pending.length === 0 && done.length > 0 && (
+        <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 px-4 py-3 text-center">
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">همه وظایف انجام شده ✓</p>
+        </div>
+      )}
+
+      {/* Done tasks – collapsible */}
+      {done.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowDone(s => !s)}
+            className="flex items-center gap-2 w-full py-1 group"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-500">
+              انجام شده ({done.length})
+            </span>
+            <svg
+              className={`w-3.5 h-3.5 text-gray-400 transition-transform mr-auto ${showDone ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showDone && (
+            <div className="flex flex-col gap-2 mt-2">
+              {done.map(t => (
+                <TaskCard
+                  key={t.id}
+                  task={t}
+                  members={members}
+                  isManager={isManager}
+                  currentMemberId={currentMemberId}
+                  onToggle={() => onToggle(t.id, t.status)}
+                  onDelete={() => onDelete(t.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -289,16 +259,19 @@ function AddTaskModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">عنوان</label>
-            <input autoFocus type="text" value={title} onChange={e => { setTitle(e.target.value); setErr(''); }} placeholder="چه کاری باید انجام شود؟" className={FIELD} />
+            <input
+              autoFocus type="text" value={title}
+              onChange={e => { setTitle(e.target.value); setErr(''); }}
+              placeholder="چه کاری باید انجام شود؟"
+              className={FIELD}
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">نوع وظیفه</label>
             <div className="grid grid-cols-2 gap-2">
               {(['public', 'personal'] as const).map(t => (
                 <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
+                  key={t} type="button" onClick={() => setType(t)}
                   className={`py-2.5 rounded-xl text-sm font-semibold border-2 transition-colors ${
                     type === t
                       ? t === 'public'
@@ -329,11 +302,128 @@ function AddTaskModal({
           </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300">انصراف</button>
-            <button type="submit" className="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-sm font-bold text-white transition-colors">افزودن</button>
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300">
+              انصراف
+            </button>
+            <button type="submit" className="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-sm font-bold text-white transition-colors">
+              افزودن
+            </button>
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+// ── Login Screen ──────────────────────────────────────────────────────────────
+function LoginScreen() {
+  const { createWorkspace, joinWorkspace, managerLogin } = useDesk();
+  const [tab, setTab] = useState<'join' | 'create' | 'manager'>('join');
+
+  const [joinCode, setJoinCode] = useState('');
+  const [joinName, setJoinName] = useState('');
+  const [joinErr, setJoinErr] = useState('');
+
+  const [wsName, setWsName] = useState('');
+  const [managerName, setManagerName] = useState('');
+  const [pin, setPin] = useState('');
+  const [createErr, setCreateErr] = useState('');
+
+  const [mCode, setMCode] = useState('');
+  const [mPin, setMPin] = useState('');
+  const [mErr, setMErr] = useState('');
+
+  function handleJoin(e: React.FormEvent) {
+    e.preventDefault();
+    const err = joinWorkspace(joinCode, joinName);
+    if (err) setJoinErr(err); else setJoinErr('');
+  }
+  function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    const err = createWorkspace(wsName, managerName, pin);
+    if (err) setCreateErr(err); else setCreateErr('');
+  }
+  function handleManagerLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const err = managerLogin(mCode, mPin);
+    if (err) setMErr(err); else setMErr('');
+  }
+
+  return (
+    <div className="flex flex-col gap-6 pt-6 max-w-sm mx-auto">
+      <div className="text-center">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center mx-auto mb-3">
+          <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">میزکار</h1>
+        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">مدیریت وظایف تیمی</p>
+      </div>
+
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
+        {([['join', 'ورود با کد'], ['manager', 'مدیر'], ['create', 'ایجاد میزکار']] as const).map(([val, label]) => (
+          <button
+            key={val}
+            onClick={() => setTab(val)}
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+              tab === val ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'join' && (
+        <form onSubmit={handleJoin} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
+            <input autoFocus type="text" value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} placeholder="کد را از مدیر بگیرید" className={`${FIELD} tracking-widest font-mono`} maxLength={8} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام شما</label>
+            <input type="text" value={joinName} onChange={e => setJoinName(e.target.value)} placeholder="مثلاً: علی رضایی" className={FIELD} />
+          </div>
+          {joinErr && <p className="text-xs text-red-500">{joinErr}</p>}
+          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">ورود به میزکار</button>
+        </form>
+      )}
+
+      {tab === 'manager' && (
+        <form onSubmit={handleManagerLogin} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
+            <input autoFocus type="text" value={mCode} onChange={e => setMCode(e.target.value.toUpperCase())} placeholder="کد میزکار" className={`${FIELD} tracking-widest font-mono`} maxLength={8} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">پین مدیر (۴ رقم)</label>
+            <input type="password" inputMode="numeric" value={mPin} onChange={e => setMPin(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="••••" className={`${FIELD} tracking-widest text-center`} maxLength={4} />
+          </div>
+          {mErr && <p className="text-xs text-red-500">{mErr}</p>}
+          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">ورود مدیر</button>
+        </form>
+      )}
+
+      {tab === 'create' && (
+        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام میزکار</label>
+            <input autoFocus type="text" value={wsName} onChange={e => setWsName(e.target.value)} placeholder="مثلاً: تیم فروش اینفینیتی" className={FIELD} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">نام مدیر</label>
+            <input type="text" value={managerName} onChange={e => setManagerName(e.target.value)} placeholder="نام شما" className={FIELD} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">پین مدیر (۴ رقم عددی)</label>
+            <input type="password" inputMode="numeric" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="••••" className={`${FIELD} tracking-widest text-center`} maxLength={4} />
+            <p className="mt-1 text-[11px] text-gray-400">این پین را نزد خودتان نگه دارید</p>
+          </div>
+          {createErr && <p className="text-xs text-red-500">{createErr}</p>}
+          <button type="submit" className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors">ایجاد میزکار</button>
+        </form>
+      )}
     </div>
   );
 }
@@ -358,9 +448,13 @@ export function DeskPage() {
     return t.assignedTo === session.memberId || t.createdBy === session.memberId;
   });
 
-  function handleAdd(title: string, type: 'public' | 'personal', assignedTo?: string, desc?: string) {
-    return addTask(title, type, assignedTo, desc);
+  function handleToggle(taskId: string, cur: 'pending' | 'done') {
+    setTaskStatus(taskId, cur === 'done' ? 'pending' : 'done');
   }
+
+  // Tab badge counts
+  const pubPending = publicTasks.filter(t => t.status === 'pending').length;
+  const perPending = personalTasks.filter(t => t.status === 'pending').length;
 
   return (
     <div className="flex flex-col gap-4 pt-4 pb-6">
@@ -380,7 +474,6 @@ export function DeskPage() {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {/* Show join code for manager */}
           {isManager && (
             <button
               onClick={() => setShowCode(s => !s)}
@@ -443,88 +536,67 @@ export function DeskPage() {
       )}
 
       {/* Tabs */}
-      <div className={`flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl`}>
+      <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
         {([
-          ['public', 'عمومی'],
-          ['personal', 'شخصی'],
-          ...(isManager ? [['by-member', 'بر اساس نفر']] : []),
-        ] as [typeof tab, string][]).map(([val, label]) => (
+          ['public', 'عمومی', pubPending],
+          ['personal', 'شخصی', perPending],
+          ...(isManager ? [['by-member', 'نفر به نفر', 0]] : []),
+        ] as [typeof tab, string, number][]).map(([val, label, cnt]) => (
           <button
             key={val}
             onClick={() => setTab(val)}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               tab === val
                 ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
                 : 'text-gray-500 dark:text-gray-400'
             }`}
           >
             {label}
+            {cnt > 0 && (
+              <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${
+                tab === val
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+              }`}>
+                {cnt}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Public tasks */}
       {tab === 'public' && (
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
-            وظایف عمومی ({publicTasks.length})
-          </h2>
-          {publicTasks.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-6 text-center">
-              <p className="text-sm text-gray-400">وظیفه عمومی‌ای ثبت نشده</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {publicTasks.map(t => (
-                <TaskCard
-                  key={t.id}
-                  task={t}
-                  members={members}
-                  isManager={isManager}
-                  currentMemberId={session.memberId}
-                  onToggle={() => setTaskStatus(t.id, t.status === 'done' ? 'pending' : 'done')}
-                  onDelete={() => deleteTask(t.id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        <TaskSection
+          tasks={publicTasks}
+          members={members}
+          isManager={isManager}
+          currentMemberId={session.memberId}
+          onToggle={handleToggle}
+          onDelete={deleteTask}
+          emptyLabel="وظیفه عمومی‌ای ثبت نشده"
+        />
       )}
 
       {/* Personal tasks */}
       {tab === 'personal' && (
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
-            وظایف شخصی ({personalTasks.length})
-          </h2>
-          {personalTasks.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-6 text-center">
-              <p className="text-sm text-gray-400">وظیفه شخصی‌ای وجود ندارد</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {personalTasks.map(t => (
-                <TaskCard
-                  key={t.id}
-                  task={t}
-                  members={members}
-                  isManager={isManager}
-                  currentMemberId={session.memberId}
-                  onToggle={() => setTaskStatus(t.id, t.status === 'done' ? 'pending' : 'done')}
-                  onDelete={() => deleteTask(t.id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        <TaskSection
+          tasks={personalTasks}
+          members={members}
+          isManager={isManager}
+          currentMemberId={session.memberId}
+          onToggle={handleToggle}
+          onDelete={deleteTask}
+          emptyLabel="وظیفه شخصی‌ای وجود ندارد"
+        />
       )}
 
-      {/* By member view (manager only) */}
+      {/* By-member view (manager only) */}
       {tab === 'by-member' && isManager && (
         <div className="flex flex-col gap-6">
           {nonManagers.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-6 text-center">
-              <p className="text-sm text-gray-400">هنوز هیچ عضوی به میزکار نپیوسته</p>
+            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-8 text-center">
+              <p className="text-sm text-gray-300 dark:text-gray-600">هنوز هیچ عضوی به میزکار نپیوسته</p>
             </div>
           )}
           {nonManagers.map(member => {
@@ -532,31 +604,40 @@ export function DeskPage() {
               t.assignedTo === member.id || (t.type === 'personal' && t.createdBy === member.id)
             );
             const done = memberTasks.filter(t => t.status === 'done').length;
+            const pending = memberTasks.length - done;
             return (
               <section key={member.id}>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-400">
+                {/* Member header */}
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50 flex items-center justify-center text-sm font-bold text-indigo-600 dark:text-indigo-300">
                     {member.name.charAt(0)}
                   </div>
-                  <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300">{member.name}</h2>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 mr-auto">{done}/{memberTasks.length} انجام شده</span>
-                </div>
-                {memberTasks.length === 0 ? (
-                  <p className="text-xs text-gray-300 dark:text-gray-600 px-2">وظیفه‌ای ندارد</p>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {memberTasks.map(t => (
-                      <TaskCard
-                        key={t.id}
-                        task={t}
-                        members={members}
-                        isManager={isManager}
-                        currentMemberId={session.memberId}
-                        onToggle={() => setTaskStatus(t.id, t.status === 'done' ? 'pending' : 'done')}
-                        onDelete={() => deleteTask(t.id)}
-                      />
-                    ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300">{member.name}</h2>
+                      <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                        {pending > 0 && <span className="text-amber-500 font-semibold">{pending} باقی</span>}
+                        <span className="text-emerald-500 font-semibold">{done} انجام</span>
+                      </div>
+                    </div>
+                    {memberTasks.length > 0 && (
+                      <ProgressBar done={done} total={memberTasks.length} />
+                    )}
                   </div>
+                </div>
+
+                {memberTasks.length === 0 ? (
+                  <p className="text-xs text-gray-300 dark:text-gray-600 px-2 py-2">وظیفه‌ای ندارد</p>
+                ) : (
+                  <TaskSection
+                    tasks={memberTasks}
+                    members={members}
+                    isManager={isManager}
+                    currentMemberId={session.memberId}
+                    onToggle={handleToggle}
+                    onDelete={deleteTask}
+                    emptyLabel=""
+                  />
                 )}
               </section>
             );
@@ -573,4 +654,8 @@ export function DeskPage() {
       )}
     </div>
   );
+
+  function handleAdd(title: string, type: 'public' | 'personal', assignedTo?: string, desc?: string) {
+    return addTask(title, type, assignedTo, desc);
+  }
 }
