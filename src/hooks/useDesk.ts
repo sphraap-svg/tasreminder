@@ -123,7 +123,12 @@ export function useDesk() {
   }, [workspaces]);
 
   const managerLogin = useCallback((joinCode: string, pin: string): string | null => {
-    const ws = workspaces.find(w => w.joinCode === joinCode.trim().toUpperCase());
+    const trimmed = joinCode.trim();
+    let ws = workspaces.find(w => w.joinCode === trimmed);
+    if (!ws) {
+      const decoded = decodeJoinCode(trimmed);
+      if (decoded) ws = workspaces.find(w => w.id === decoded.id);
+    }
     if (!ws) return 'کد میزکار معتبر نیست';
     if (ws.managerPin !== pin) return 'پین مدیر اشتباه است';
     const manager = ws.members.find(m => m.role === 'manager');

@@ -506,7 +506,7 @@ function LoginScreen({ createWorkspace, joinWorkspace, managerLogin }: {
         <form onSubmit={handleJoin} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
-            <input autoFocus type="text" value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} placeholder="کد را از مدیر بگیرید" className={`${FIELD} tracking-widest font-mono`} maxLength={8} />
+            <input autoFocus type="text" value={joinCode} onChange={e => setJoinCode(e.target.value)} placeholder="کد را از مدیر بگیرید" className={`${FIELD} font-mono text-xs`} />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">نام شما</label>
@@ -521,7 +521,7 @@ function LoginScreen({ createWorkspace, joinWorkspace, managerLogin }: {
         <form onSubmit={handleManagerLogin} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">کد میزکار</label>
-            <input autoFocus type="text" value={mCode} onChange={e => setMCode(e.target.value.toUpperCase())} placeholder="کد میزکار" className={`${FIELD} tracking-widest font-mono`} maxLength={8} />
+            <input autoFocus type="text" value={mCode} onChange={e => setMCode(e.target.value)} placeholder="کد میزکار" className={`${FIELD} font-mono text-xs`} />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1.5">پین مدیر (۴ رقم)</label>
@@ -628,8 +628,19 @@ export function DeskPage() {
       {/* Join code banner */}
       {isManager && showCode && (
         <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-900/10 px-4 py-4">
-          <p className="text-xs text-indigo-500 dark:text-indigo-400 font-medium mb-1">کد عضویت همکاران</p>
-          <p className="text-3xl font-black tracking-[0.3em] text-indigo-600 dark:text-indigo-300 font-mono">{workspace.joinCode}</p>
+          <p className="text-xs text-indigo-500 dark:text-indigo-400 font-medium mb-2">کد عضویت همکاران</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[10px] font-mono break-all text-indigo-600 dark:text-indigo-300 flex-1 leading-relaxed">{workspace.joinCode}</p>
+            <button
+              onClick={() => navigator.clipboard.writeText(workspace.joinCode)}
+              className="flex-shrink-0 p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 hover:bg-indigo-200 dark:hover:bg-indigo-800/60 transition-colors"
+              title="کپی کد"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">این کد را به همکاران بدهید تا وارد شوند</p>
         </div>
       )}
