@@ -173,8 +173,6 @@ export function CalendarPage() {
 
   return (
     <div className="flex flex-col gap-4 pt-4 pb-6">
-      <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">تقویم</h1>
-
       {/* Calendar widget */}
       <CalendarCard
         selectedDate={selectedDate}

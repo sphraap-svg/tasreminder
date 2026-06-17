@@ -370,6 +370,25 @@
   }
 }
 
+/* Mac Hello — per-character animation */
+@keyframes mac-hello-char {
+  0%   { opacity: 0; transform: translateY(22px) scale(0.8); filter: blur(10px); }
+  60%  { filter: blur(0); }
+  80%  { transform: translateY(-4px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.mac-hello-char {
+  display: inline-block;
+  animation: mac-hello-char 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes mac-hello-dots {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 0.65; transform: translateY(0); }
+}
+.mac-hello-dots {
+  animation: mac-hello-dots 0.4s ease both;
+}
+
 /* Base — entry animation fires once on DOM mount */
 .task-item {
   animation: task-item-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;

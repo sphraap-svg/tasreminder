@@ -76,10 +76,27 @@ export function HomePage() {
   return (
     <div className="home-page-bg flex flex-col gap-3 pt-2 pb-4">
       {/* Greeting */}
-      <div className="home-card-enter" style={{ animationDelay: '0ms' }}>
-        <h1 className="text-xl font-black text-gray-900 dark:text-gray-50 tracking-tight px-1">
-          سلام 👋
-        </h1>
+      <div className="home-card-enter select-none flex justify-center pt-8 pb-2" dir="rtl" style={{ animationDelay: '0ms' }}>
+        <span
+          style={{
+            fontFamily: '"Vazirmatn", system-ui, sans-serif',
+            fontSize: 'clamp(1.2rem, 5vw, 1.8rem)',
+            fontWeight: 600,
+            lineHeight: 1.2,
+            textShadow: '0 0 60px rgba(192,132,252,0.6), 0 2px 24px rgba(0,0,0,0.3)',
+            whiteSpace: 'nowrap',
+            color: 'white',
+          }}
+        >
+          {'سلام، کارات در چه حاله ؟!'.split(' ').map((word, i, arr) => (
+            <React.Fragment key={i}>
+              <span className="mac-hello-char" style={{ animationDelay: `${i * 0.2}s`, color: 'white' }}>
+                {word}
+              </span>
+              {i < arr.length - 1 ? ' ' : ''}
+            </React.Fragment>
+          ))}
+        </span>
       </div>
 
       {/* Calendar — selectable */}
