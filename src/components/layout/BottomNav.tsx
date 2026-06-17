@@ -62,7 +62,7 @@ const NAV_ITEMS = BASE_NAV_ITEMS;
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 right-0 left-0 z-40 md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 pb-safe">
+    <nav className="fixed bottom-0 right-0 left-0 z-40 md:hidden glass-nav pb-safe">
       <div className="flex">
         {NAV_ITEMS.map(item => (
           <NavLink
@@ -71,8 +71,8 @@ export function BottomNav() {
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
                 isActive
-                  ? 'text-indigo-500'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                  ? 'text-violet-600 dark:text-violet-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`
             }
           >
@@ -92,10 +92,10 @@ export function BottomNav() {
 // Desktop sidebar nav item
 export function SideNav() {
   return (
-    <nav className="hidden md:flex flex-col w-56 flex-shrink-0 bg-white dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800 min-h-screen py-8 px-4 gap-1">
+    <nav className="hidden md:flex flex-col w-56 flex-shrink-0 glass-sidebar min-h-screen py-8 px-4 gap-1">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-3 mb-8">
-        <div className="w-8 h-8 rounded-xl bg-indigo-500 flex items-center justify-center text-white text-sm font-bold">
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>
           ی
         </div>
         <span className="font-bold text-gray-900 dark:text-gray-100">یادآور</span>
@@ -108,8 +108,8 @@ export function SideNav() {
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                ? 'bg-violet-100/70 dark:bg-violet-900/25 text-violet-700 dark:text-violet-300'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
             }`
           }
         >

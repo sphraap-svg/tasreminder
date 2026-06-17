@@ -73,10 +73,10 @@ export function WeekPage() {
       />
 
       {/* Week label */}
-      <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
+      <p className="text-xs text-gray-700 dark:text-gray-300 -mt-2">
         {getWeekLabel(weekOffset)}
         {totalWeekTasks > 0 && (
-          <span className="mr-2 px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs">
+          <span className="mr-2 px-2 py-0.5 rounded-full bg-violet-100/80 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs">
             {totalWeekTasks} وظیفه
           </span>
         )}
@@ -92,35 +92,30 @@ export function WeekPage() {
             key={day}
             className={`
               rounded-2xl border overflow-hidden
-              ${isTd
-                ? 'border-indigo-200 dark:border-indigo-700/50 bg-indigo-50/40 dark:bg-indigo-900/10'
-                : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800'
-              }
+              glass-surface
+              ${isTd ? 'ring-1 ring-violet-300/50 dark:ring-violet-700/40' : ''}
             `}
           >
             {/* Day header */}
             <div
               className={`
                 flex items-center justify-between px-4 py-3 border-b
-                ${isTd
-                  ? 'border-indigo-100 dark:border-indigo-700/40'
-                  : 'border-gray-100 dark:border-gray-700'
-                }
+                border-b border-white/50 dark:border-violet-900/30
               `}
             >
               <div className="flex items-center gap-2">
                 {isTd && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500 flex-shrink-0" />
                 )}
                 <span
                   className={`text-sm font-semibold ${
                     isTd
-                      ? 'text-indigo-600 dark:text-indigo-400'
-                      : 'text-gray-700 dark:text-gray-300'
+                      ? 'text-violet-700 dark:text-violet-300'
+                      : 'text-gray-700 dark:text-gray-200'
                   }`}
                 >
                   {formatWeekdayFa(day)}
-                  {isTd && <span className="mr-1 text-xs font-normal text-indigo-400">(امروز)</span>}
+                  {isTd && <span className="mr-1 text-xs font-normal text-violet-500 dark:text-violet-400">(امروز)</span>}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500">
                   {formatShortDateFa(day)}
@@ -133,7 +128,7 @@ export function WeekPage() {
                 )}
                 <button
                   onClick={() => setAddForDate(day)}
-                  className="p-1 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                  className="p-1 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-white/60 dark:hover:bg-violet-900/20 transition-colors"
                   aria-label="افزودن وظیفه"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -146,7 +141,7 @@ export function WeekPage() {
             {/* Tasks */}
             <div className="p-3">
               {dayTasks.length === 0 ? (
-                <p className="text-xs text-center text-gray-400 dark:text-gray-600 py-3">
+                <p className="text-xs text-center text-gray-500 dark:text-gray-500 py-3">
                   وظیفه‌ای ثبت نشده
                 </p>
               ) : (

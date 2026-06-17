@@ -21,11 +21,10 @@ export function SearchBar({ value, onChange, placeholder = 'جستجو در وظ
         placeholder={placeholder}
         className="
           w-full pr-9 pl-9 py-2.5 text-sm rounded-xl
-          bg-white dark:bg-gray-800
-          border border-gray-200 dark:border-gray-700
+          glass-surface
           text-gray-900 dark:text-gray-100
-          placeholder-gray-400 dark:placeholder-gray-500
-          focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
+          placeholder-gray-500 dark:placeholder-gray-400
+          focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent
           transition-shadow
         "
       />

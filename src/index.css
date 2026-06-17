@@ -49,26 +49,21 @@
 
 .pinboard-paper {
   position: relative;
-  background-color: #ece8ff;
+  background-color: #f0eaff;
   background-image:
-    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(167,139,250,0.60) 0%, transparent 65%),
-    radial-gradient(ellipse 65% 52% at 92%  6%, rgba(251,191,165,0.65) 0%, transparent 60%),
-    radial-gradient(ellipse 62% 58% at 55% 92%, rgba(147,197,253,0.58) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 46% at 88% 76%, rgba(196,181,253,0.52) 0%, transparent 60%),
-    radial-gradient(ellipse 46% 42% at 22% 68%, rgba(253,220,149,0.45) 0%, transparent 58%),
-    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,0.020) 28px);
+    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(167,139,250,0.90) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 52% at 92%  8%, rgba(251,182,155,0.85) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 55% at 50% 95%, rgba(196,130,255,0.60) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 44% at 78% 68%, rgba(221,160,255,0.40) 0%, transparent 55%);
 }
 
 .dark .pinboard-paper {
-  background-color: #0b0d1a;
+  background-color: #100a20;
   background-image:
-    /* vivid orbs — backdrop-blur will smear these across card surfaces */
-    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(130, 80,255,0.68) 0%, transparent 65%),
-    radial-gradient(ellipse 65% 52% at 92%  6%, rgba(255,100, 80,0.55) 0%, transparent 60%),
-    radial-gradient(ellipse 62% 58% at 55% 92%, rgba( 50,150,255,0.62) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 46% at 88% 76%, rgba(160, 90,255,0.52) 0%, transparent 60%),
-    radial-gradient(ellipse 46% 42% at 22% 68%, rgba(255,180, 60,0.38) 0%, transparent 58%),
-    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(255,255,255,0.022) 28px);
+    radial-gradient(ellipse 80% 60% at  8% 18%, rgba(120,60,230,0.92) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 52% at 92%  8%, rgba(200,80,60,0.75) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 55% at 50% 95%, rgba(150,60,220,0.60) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 44% at 78% 68%, rgba(160,80,255,0.42) 0%, transparent 55%);
 }
 
 
@@ -379,6 +374,22 @@
 .task-item {
   animation: task-item-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
   position: relative;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+}
+.dark .task-item {
+  background: rgba(16, 10, 40, 0.55);
+  border-color: rgba(167, 139, 250, 0.13);
+}
+.task-item.task-item--done {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+.dark .task-item.task-item--done {
+  background: rgba(16, 10, 40, 0.28);
+  border-color: rgba(167, 139, 250, 0.07);
 }
 
 /* Leaving — triggered just before the item is removed from the DOM */
@@ -413,14 +424,14 @@
 /* ── Glow box-shadow on hover (non-completed items only) ─────────── */
 .task-item:not(.task-item--done):hover {
   box-shadow:
-    0 4px 18px rgba(99, 102, 241, 0.10),
-    0 1px 4px  rgba(0,   0,   0,  0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    0 4px 18px rgba(124, 58, 237, 0.12),
+    0 1px 4px  rgba(0,   0,   0,  0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70);
 }
 
 .dark .task-item:not(.task-item--done):hover {
   box-shadow:
-    0 4px 22px rgba(99, 102, 241, 0.20),
+    0 4px 22px rgba(120, 60, 230, 0.24),
     0 1px 4px  rgba(0,   0,   0,  0.40),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
@@ -449,13 +460,13 @@
 .home-card {
   position: relative;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.60);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   box-shadow:
-    0 2px 12px rgba(99, 102, 241, 0.06),
-    0 1px 3px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+    0 2px 16px rgba(124, 58, 237, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(20px) saturate(190%) brightness(1.05);
+  -webkit-backdrop-filter: blur(20px) saturate(190%) brightness(1.05);
   overflow: hidden;
   transition:
     transform 220ms cubic-bezier(0.22, 1, 0.36, 1) !important,
@@ -463,24 +474,24 @@
 }
 
 .dark .home-card {
-  background: rgba(30, 32, 48, 0.72);
-  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(16, 10, 40, 0.62);
+  border-color: rgba(167, 139, 250, 0.16);
   box-shadow:
-    0 2px 16px rgba(0, 0, 0, 0.30),
-    0 1px 3px rgba(0, 0, 0, 0.20);
+    0 2px 20px rgba(0, 0, 0, 0.35),
+    0 1px 6px rgba(0, 0, 0, 0.25);
 }
 
 .home-card:hover {
   transform: translateY(-2px) scale(1.005) !important;
   box-shadow:
-    0 8px 28px rgba(99, 102, 241, 0.12),
-    0 2px 6px rgba(0, 0, 0, 0.07) !important;
+    0 8px 28px rgba(124, 58, 237, 0.14),
+    0 2px 6px rgba(0, 0, 0, 0.06) !important;
 }
 
 .dark .home-card:hover {
   box-shadow:
-    0 8px 32px rgba(99, 102, 241, 0.22),
-    0 2px 6px rgba(0, 0, 0, 0.35) !important;
+    0 8px 32px rgba(120, 60, 230, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.40) !important;
 }
 
 /* Shine overlay */
@@ -535,4 +546,60 @@
   .home-card::before {
     transition: none !important;
   }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   GLASS UTILITIES — frosted-glass surface, nav, sidebar, modal
+   All use the calendar's violet-peach-purple palette.
+   ════════════════════════════════════════════════════════════════════ */
+
+.glass-surface {
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.06);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.06);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2px 16px rgba(124, 58, 237, 0.06), 0 1px 4px rgba(0,0,0,0.04);
+}
+.dark .glass-surface {
+  background: rgba(16, 10, 40, 0.62);
+  border-color: rgba(167, 139, 250, 0.15);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.30), 0 1px 4px rgba(0,0,0,0.20);
+}
+
+.glass-nav {
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  background: rgba(255, 255, 255, 0.80);
+  border-top: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 -2px 12px rgba(124, 58, 237, 0.06);
+}
+.dark .glass-nav {
+  background: rgba(16, 10, 40, 0.82);
+  border-top-color: rgba(167, 139, 250, 0.14);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.30);
+}
+
+.glass-sidebar {
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  background: rgba(255, 255, 255, 0.78);
+  border-left: 1px solid rgba(255, 255, 255, 0.60);
+}
+.dark .glass-sidebar {
+  background: rgba(16, 10, 40, 0.80);
+  border-left-color: rgba(167, 139, 250, 0.14);
+}
+
+.glass-modal {
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  background: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.80);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(124, 58, 237, 0.06);
+}
+.dark .glass-modal {
+  background: rgba(22, 12, 50, 0.92);
+  border-color: rgba(167, 139, 250, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.30);
 }

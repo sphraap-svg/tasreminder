@@ -35,12 +35,12 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
-      {/* Blobs */}
+    <div className="min-h-screen flex items-center justify-center p-4" style={{background: 'linear-gradient(135deg, #100a20 0%, #1a0840 55%, #200a32 100%)'}}>
+      {/* Blobs matching calendar dark palette */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-indigo-500/30 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-purple-500/30 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-pink-500/20 blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl" style={{background: 'rgba(120,60,230,0.38)'}} />
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full blur-3xl" style={{background: 'rgba(200,80,60,0.30)'}} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl" style={{background: 'rgba(150,60,220,0.24)'}} />
       </div>
 
       {/* Card */}
@@ -69,7 +69,7 @@ export function LoginPage() {
         <div className="relative px-8 py-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-500/80 flex items-center justify-center text-white text-2xl font-black shadow-lg mb-3">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg mb-3" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>
               ی
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">میزکار تیمی</h1>
@@ -136,7 +136,8 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-indigo-900/40 transition-all duration-200 active:scale-95"
+              className="mt-2 w-full py-3.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg transition-all duration-200 active:scale-95 hover:opacity-90"
+            style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)', boxShadow: '0 4px 20px rgba(120,60,230,0.40)'}}
             >
               {loading ? 'در حال پردازش...' : mode === 'login' ? 'ورود' : 'ثبت‌نام'}
             </button>

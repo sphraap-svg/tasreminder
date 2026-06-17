@@ -8,7 +8,7 @@ export function AppLayout() {
   useReminderPoller();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-row-reverse">
+    <div className="pinboard-paper min-h-screen flex flex-row-reverse">
       {/* Desktop sidebar (right side in RTL) */}
       <SideNav />
 

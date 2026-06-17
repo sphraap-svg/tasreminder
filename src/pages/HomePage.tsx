@@ -19,10 +19,10 @@ function NoteModal({ open, onClose, onSave }: { open: boolean; onClose: () => vo
   return (
     <Modal open={open} onClose={() => { setContent(''); onClose(); }} title="یادداشت جدید">
       <div className="flex flex-col gap-4">
-        <textarea autoFocus value={content} onChange={e => setContent(e.target.value)} placeholder="یادداشت خود را بنویسید..." rows={5} className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
+        <textarea autoFocus value={content} onChange={e => setContent(e.target.value)} placeholder="یادداشت خود را بنویسید..." rows={5} className="w-full px-3 py-2.5 text-sm rounded-xl glass-surface text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none" />
         <div className="flex gap-3">
           <button onClick={() => { setContent(''); onClose(); }} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300">انصراف</button>
-          <button onClick={handleSave} disabled={!content.trim()} className="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-sm font-bold text-white transition-colors">ذخیره</button>
+          <button onClick={handleSave} disabled={!content.trim()} className="flex-1 py-2.5 rounded-xl disabled:opacity-40 text-sm font-bold text-white transition-all hover:opacity-90" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>ذخیره</button>
         </div>
       </div>
     </Modal>
@@ -33,7 +33,7 @@ function EventModal({ open, onClose, onSave }: { open: boolean; onClose: () => v
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
   const [err, setErr] = useState('');
-  const FIELD = 'w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400';
+  const FIELD = 'w-full px-3 py-2.5 text-sm rounded-xl glass-surface text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400';
   function handleSave() {
     if (!title.trim()) { setErr('عنوان الزامی است'); return; }
     onSave(title.trim(), time || undefined);
@@ -94,7 +94,7 @@ export function HomePage() {
 
       {/* Selected day panel — only shown when a non-today day is selected or there's content */}
       {(!selectedIsToday || hasContent) && (
-        <div className="home-card-enter rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800/60 px-4 py-4 flex flex-col gap-3" style={{ animationDelay: '90ms' }}>
+        <div className="home-card-enter glass-surface rounded-2xl px-4 py-4 flex flex-col gap-3" style={{ animationDelay: '90ms' }}>
           {/* Day label */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export function HomePage() {
                 {formatWeekdayFa(selectedDate)} {formatShortDateFa(selectedDate)}
               </span>
               {selectedIsToday && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500 text-white">امروز</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>امروز</span>
               )}
             </div>
             <div className="flex gap-1">

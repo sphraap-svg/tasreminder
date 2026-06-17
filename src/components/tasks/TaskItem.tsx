@@ -47,10 +47,8 @@ export function TaskItem({ task }: TaskItemProps) {
     'task-item',
     task.completed ? 'task-item--done' : '',
     isLeaving ? 'leaving' : '',
-    'group relative flex items-start gap-3 p-4 rounded-2xl border transition-colors duration-200',
-    task.completed
-      ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/50 opacity-60'
-      : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-card',
+    'group relative flex items-start gap-3 p-4 rounded-2xl transition-colors duration-200',
+    task.completed ? 'opacity-60' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -64,7 +62,7 @@ export function TaskItem({ task }: TaskItemProps) {
             flex-shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
             ${task.completed
               ? 'bg-emerald-500 border-emerald-500 text-white'
-              : 'border-gray-300 dark:border-gray-600 hover:border-indigo-400'
+              : 'border-gray-300 dark:border-gray-600 hover:border-violet-500'
             }
           `}
         >
@@ -126,7 +124,7 @@ export function TaskItem({ task }: TaskItemProps) {
           <button
             onClick={() => setShowEdit(true)}
             aria-label="ویرایش"
-            className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-white/60 dark:hover:bg-violet-900/20 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

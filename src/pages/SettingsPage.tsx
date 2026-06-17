@@ -22,7 +22,7 @@ const THEME_OPTIONS: { value: ThemeMode; label: string; icon: string }[] = [
 
 function SettingCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5">
+    <div className="glass-surface rounded-2xl p-5">
       {children}
     </div>
   );
@@ -30,7 +30,7 @@ function SettingCard({ children }: { children: React.ReactNode }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
+    <h2 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-3">
       {children}
     </h2>
   );
@@ -110,8 +110,8 @@ export function SettingsPage() {
                 onClick={() => setTheme(opt.value)}
                 className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-medium transition-colors
                   ${theme === opt.value
-                    ? 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400'
-                    : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-300'}`}
+                    ? 'border-violet-400 bg-white/70 dark:bg-violet-900/25 text-violet-700 dark:text-violet-300'
+                    : 'border-white/50 dark:border-violet-900/30 text-gray-600 dark:text-gray-300 hover:border-white/80 dark:hover:border-violet-700/40'}`}
               >
                 <span className="text-lg">{opt.icon}</span>
                 {opt.label}
@@ -190,7 +190,7 @@ export function SettingsPage() {
               )}
 
               {/* Limitation notice */}
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-1.5">
+              <div className="mt-4 pt-4 border-t border-white/50 dark:border-violet-900/30 space-y-1.5">
                 <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">
                   ⚠️ <span className="font-medium">محدودیت:</span> یادآوری‌ها تا زمانی که برنامه در مرورگر باز باشد کار می‌کنند.
                   برای یادآوری در پس‌زمینه، برنامه را به عنوان PWA نصب کنید.
@@ -236,7 +236,7 @@ export function SettingsPage() {
               </Button>
             </div>
 
-            <div className="border-t border-gray-100 dark:border-gray-700 pt-3 flex items-center justify-between">
+            <div className="border-t border-white/50 dark:border-violet-900/30 pt-3 flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-red-600 dark:text-red-400">
                   پاک کردن همه داده‌ها
