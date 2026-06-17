@@ -315,6 +315,130 @@ function AddTaskModal({
   );
 }
 
+// ── Folder Colors ─────────────────────────────────────────────────────────────
+const FOLDER_COLORS = [
+  '#e8553a', // coral
+  '#5b6ef5', // indigo
+  '#9333ea', // purple
+  '#0891b2', // cyan
+  '#d97706', // amber
+  '#059669', // emerald
+  '#db2777', // pink
+  '#7c3aed', // violet
+];
+
+// ── Member Folder Card ────────────────────────────────────────────────────────
+function MemberFolderCard({
+  member,
+  tasks,
+  color,
+  isSelected,
+  onClick,
+}: {
+  member: DeskMember;
+  tasks: DeskTask[];
+  color: string;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const done = tasks.filter(t => t.status === 'done').length;
+  const pending = tasks.length - done;
+  const pct = tasks.length === 0 ? 0 : Math.round((done / tasks.length) * 100);
+
+  // Lighten color for glass front
+  const glassColor = color + 'cc';
+  const backColor = color + 'ee';
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-right focus:outline-none group"
+      style={{ aspectRatio: '1 / 1' }}
+    >
+      <div
+        className="relative w-full h-full rounded-3xl overflow-hidden transition-transform duration-200 active:scale-95"
+        style={{
+          boxShadow: isSelected
+            ? `0 0 0 3px ${color}, 0 8px 32px ${color}55`
+            : `0 4px 24px ${color}44`,
+          transform: isSelected ? 'scale(0.97)' : undefined,
+        }}
+      >
+        {/* Back — solid color */}
+        <div
+          className="absolute inset-0"
+          style={{ background: backColor }}
+        />
+
+        {/* Papers sticking up from behind the front cover */}
+        <div className="absolute left-4 right-4 flex items-end justify-center gap-2"
+          style={{ top: '6%', bottom: '42%' }}
+        >
+          {[8, 0, -8].map((rotate, i) => (
+            <div
+              key={i}
+              className="rounded-xl flex-shrink-0 flex flex-col gap-1 px-2 pt-2"
+              style={{
+                width: '30%',
+                height: '100%',
+                background: 'rgba(255,255,255,0.88)',
+                transform: `rotate(${rotate}deg)`,
+                transformOrigin: 'bottom center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              }}
+            >
+              <div className="h-1.5 rounded-full bg-gray-200" style={{ width: '75%' }} />
+              <div className="h-1 rounded-full bg-gray-100" style={{ width: '55%' }} />
+              <div className="h-1 rounded-full bg-gray-100" style={{ width: '65%' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Front cover — glass */}
+        <div
+          className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3 flex flex-col justify-between"
+          style={{
+            height: '52%',
+            background: `linear-gradient(160deg, ${color}99 0%, ${glassColor} 100%)`,
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            borderTop: `1px solid rgba(255,255,255,0.25)`,
+          }}
+        >
+          <div />
+          <div>
+            <p className="text-white font-black text-base leading-tight truncate">{member.name}</p>
+            <p className="text-white/70 text-[11px] mt-0.5">
+              {tasks.length === 0
+                ? 'بدون وظیفه'
+                : pending > 0
+                ? `${pending} باقی‌مانده`
+                : 'همه انجام شد ✓'}
+            </p>
+          </div>
+          {tasks.length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.25)' }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: 'rgba(255,255,255,0.85)' }}
+                />
+              </div>
+              <span className="text-[10px] text-white/70 font-bold tabular-nums">{pct}٪</span>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom glow */}
+        <div
+          className="absolute bottom-0 left-1/4 right-1/4 h-3 blur-xl rounded-full opacity-60"
+          style={{ background: color }}
+        />
+      </div>
+    </button>
+  );
+}
+
 // ── Login Screen ──────────────────────────────────────────────────────────────
 function LoginScreen() {
   const { createWorkspace, joinWorkspace, managerLogin } = useDesk();
@@ -434,6 +558,7 @@ export function DeskPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [tab, setTab] = useState<'public' | 'personal' | 'by-member'>('public');
   const [showCode, setShowCode] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   if (!session || !workspace) return <LoginScreen />;
 
@@ -591,44 +716,67 @@ export function DeskPage() {
         />
       )}
 
-      {/* By-member view (manager only) */}
+      {/* By-member view (manager only) — folder cards */}
       {tab === 'by-member' && isManager && (
-        <div className="flex flex-col gap-6">
-          {nonManagers.length === 0 && (
+        <div className="flex flex-col gap-5">
+          {nonManagers.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 px-4 py-8 text-center">
               <p className="text-sm text-gray-300 dark:text-gray-600">هنوز هیچ عضوی به میزکار نپیوسته</p>
             </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {nonManagers.map((member, idx) => {
+                const memberTasks = workspace.tasks.filter(t =>
+                  t.assignedTo === member.id || (t.type === 'personal' && t.createdBy === member.id)
+                );
+                const color = FOLDER_COLORS[idx % FOLDER_COLORS.length];
+                const isSelected = selectedMemberId === member.id;
+                return (
+                  <MemberFolderCard
+                    key={member.id}
+                    member={member}
+                    tasks={memberTasks}
+                    color={color}
+                    isSelected={isSelected}
+                    onClick={() => setSelectedMemberId(isSelected ? null : member.id)}
+                  />
+                );
+              })}
+            </div>
           )}
-          {nonManagers.map(member => {
+
+          {/* Expanded task list for selected member */}
+          {selectedMemberId && (() => {
+            const member = nonManagers.find(m => m.id === selectedMemberId);
+            if (!member) return null;
             const memberTasks = workspace.tasks.filter(t =>
               t.assignedTo === member.id || (t.type === 'personal' && t.createdBy === member.id)
             );
-            const done = memberTasks.filter(t => t.status === 'done').length;
-            const pending = memberTasks.length - done;
+            const idx = nonManagers.indexOf(member);
+            const color = FOLDER_COLORS[idx % FOLDER_COLORS.length];
             return (
-              <section key={member.id}>
-                {/* Member header */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50 flex items-center justify-center text-sm font-bold text-indigo-600 dark:text-indigo-300">
+              <div className="rounded-3xl overflow-hidden" style={{ border: `1.5px solid ${color}55` }}>
+                {/* Header */}
+                <div className="px-4 py-3 flex items-center gap-3"
+                  style={{ background: `${color}18` }}
+                >
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black text-white"
+                    style={{ background: color }}
+                  >
                     {member.name.charAt(0)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300">{member.name}</h2>
-                      <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                        {pending > 0 && <span className="text-amber-500 font-semibold">{pending} باقی</span>}
-                        <span className="text-emerald-500 font-semibold">{done} انجام</span>
-                      </div>
-                    </div>
-                    {memberTasks.length > 0 && (
-                      <ProgressBar done={done} total={memberTasks.length} />
-                    )}
-                  </div>
+                  <span className="font-bold text-gray-800 dark:text-gray-100">{member.name}</span>
+                  <button
+                    onClick={() => setSelectedMemberId(null)}
+                    className="mr-auto p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-
-                {memberTasks.length === 0 ? (
-                  <p className="text-xs text-gray-300 dark:text-gray-600 px-2 py-2">وظیفه‌ای ندارد</p>
-                ) : (
+                {/* Tasks */}
+                <div className="px-3 pb-3 pt-2">
                   <TaskSection
                     tasks={memberTasks}
                     members={members}
@@ -636,12 +784,12 @@ export function DeskPage() {
                     currentMemberId={session.memberId}
                     onToggle={handleToggle}
                     onDelete={deleteTask}
-                    emptyLabel=""
+                    emptyLabel="وظیفه‌ای برای این عضو ثبت نشده"
                   />
-                )}
-              </section>
+                </div>
+              </div>
             );
-          })}
+          })()}
         </div>
       )}
 

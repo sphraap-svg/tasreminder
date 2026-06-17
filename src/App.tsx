@@ -8,7 +8,6 @@ import { WorkspaceProvider } from './context/WorkspaceContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { HomePage } from './pages/HomePage';
 import { TodayPage } from './pages/TodayPage';
-import { WeekPage } from './pages/WeekPage';
 import { ArchivePage } from './pages/ArchivePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
@@ -48,7 +47,6 @@ export default function App() {
                   <Route element={<AppLayout />}>
                     <Route path="/home" element={<HomePage />} />
                     <Route path="/today" element={<TodayPage />} />
-                    <Route path="/week" element={<WeekPage />} />
                     <Route path="/calendar" element={<CalendarPage />} />
                     <Route path="/desk" element={<DeskPage />} />
                     <Route path="/archive" element={<ArchivePage />} />
