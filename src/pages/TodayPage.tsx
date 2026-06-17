@@ -6,11 +6,8 @@ import { SearchBar } from '../components/filters/SearchBar';
 import { FilterBar } from '../components/filters/FilterBar';
 import { EmptyState } from '../components/ui/EmptyState';
 import { FloatingTaskCard } from '../components/tasks/FloatingTaskCard';
-import { CalendarCard } from '../components/ui/CalendarCard';
 import { formatTodayHeaderFa } from '../utils/date';
 import { FilterType } from '../types';
-
-// ─── Icon helpers ─────────────────────────────────────────────────────────────
 
 function StarIcon() {
   return (
@@ -28,42 +25,28 @@ function ChecklistIcon() {
   );
 }
 
-// ─── Dotted connector between cards ──────────────────────────────────────────
-
 function CardConnector({ fromLeft }: { fromLeft: boolean }) {
   return (
     <>
-      {/* Desktop: curved SVG path */}
       <div className="relative h-10 w-full hidden md:block" aria-hidden="true">
-        <svg
-          viewBox="0 0 576 40"
-          className="w-full h-full"
-          preserveAspectRatio="none"
-        >
+        <svg viewBox="0 0 576 40" className="w-full h-full" preserveAspectRatio="none">
           <path
-            d={
-              fromLeft
-                ? 'M 160 2 C 288 12 288 28 416 38'
-                : 'M 416 2 C 288 12 288 28 160 38'
-            }
+            d={fromLeft ? 'M 160 2 C 288 12 288 28 416 38' : 'M 416 2 C 288 12 288 28 160 38'}
             fill="none"
-            stroke="#C7D2DB"
+            stroke="currentColor"
+            className="text-gray-200 dark:text-gray-700"
             strokeWidth="2"
             strokeDasharray="6 7"
             strokeLinecap="round"
           />
         </svg>
       </div>
-
-      {/* Mobile: simple vertical dotted line */}
       <div className="flex justify-center md:hidden" aria-hidden="true">
-        <div className="w-0 border-l-2 border-dashed border-gray-300 dark:border-gray-600 h-8" />
+        <div className="w-0 border-l-2 border-dashed border-gray-200 dark:border-gray-700 h-8" />
       </div>
     </>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function TodayPage() {
   const { todayTasks, categories } = useTasks();
@@ -72,7 +55,6 @@ export function TodayPage() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Split tasks for pinboard vs. list
   const activeTasks = todayTasks.filter(t => !t.completed && !t.archived);
   const completedToday = todayTasks.filter(t => t.completed);
   const pinnedTasks = activeTasks.slice(0, 5);
@@ -84,126 +66,94 @@ export function TodayPage() {
   const allDone = totalCount > 0 && remainingCount === 0;
 
   return (
-    <div className="flex flex-col gap-0">
+    <div className="flex flex-col gap-4 pt-2 pb-4">
 
-      {/* ── Calendar Card ── */}
-      <div className="pt-4 pb-2">
-        <CalendarCard />
-      </div>
+      {/* ── Header card ── */}
+      <div className="home-card p-5 board-anim board-anim-1">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-gray-50 tracking-tight leading-none">
+              امروز
+            </h1>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 font-medium">
+              {formatTodayHeaderFa()}
+            </p>
+          </div>
 
-      {/* ── Board: paper background ── */}
-      <div className="pinboard-paper rounded-2xl overflow-hidden shadow-sm mx-0.5">
-
-        {/* Board header */}
-        <div className="text-center px-6 pt-8 pb-5">
-          <h1 className="board-anim board-anim-1 text-4xl font-black text-gray-800 dark:text-gray-100 tracking-tighter leading-none">
-            امروز
-          </h1>
-          <p className="board-anim board-anim-2 text-sm text-gray-400 dark:text-gray-500 mt-2 font-medium">
-            {formatTodayHeaderFa()}
-          </p>
-
-          {/* Summary pills */}
           {totalCount > 0 && (
-            <div className="board-anim board-anim-3 flex gap-2 justify-center mt-4 flex-wrap">
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/70 dark:bg-white/10 text-gray-600 dark:text-gray-300 shadow-sm">
-                کل {totalCount}
-              </span>
+            <div className="flex flex-col items-end gap-1.5">
               {completedCount > 0 && (
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 shadow-sm">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
                   ✓ {completedCount} انجام‌شده
                 </span>
               )}
               {remainingCount > 0 && (
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 shadow-sm">
-                  {remainingCount} باقی‌مانده
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                  {remainingCount} باقی
                 </span>
               )}
             </div>
           )}
         </div>
 
-        {/* Quick add */}
-        <div className="board-anim board-anim-4 px-4 pb-6">
+        <div className="mt-4 board-anim board-anim-2">
           <QuickAddTask />
         </div>
-
-        {/* ── All-done state ── */}
-        {allDone && (
-          <div className="px-4 pb-10">
-            <EmptyState
-              icon={<StarIcon />}
-              title="همه کارهای امروز انجام شدند!"
-              description="عالیه، امروز رو به خوبی پشت سر گذاشتی 🎉"
-            />
-          </div>
-        )}
-
-        {/* ── No tasks state ── */}
-        {!allDone && totalCount === 0 && (
-          <div className="px-4 pb-10">
-            <EmptyState
-              icon={<ChecklistIcon />}
-              title="امروز هنوز وظیفه‌ای ثبت نکرده‌ای"
-              description="اولین وظیفه امروزت را از بالا اضافه کن"
-            />
-          </div>
-        )}
-
-        {/* ── Pinboard cards ── */}
-        {pinnedTasks.length > 0 && (
-          <div className="px-4 md:px-10 pb-10">
-            {/* Card label */}
-            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 text-center mb-6 tracking-wide uppercase">
-              وظایف اصلی
-            </p>
-
-            {/* Cards + connectors */}
-            <div className="flex flex-col items-center max-w-xl mx-auto">
-              {pinnedTasks.map((task, i) => (
-                <React.Fragment key={task.id}>
-                  {/* Card row — alternates left / right on desktop */}
-                  <div
-                    className={`flex w-full justify-center ${
-                      i % 2 === 0 ? 'md:justify-start' : 'md:justify-end'
-                    }`}
-                  >
-                    <FloatingTaskCard task={task} index={i} />
-                  </div>
-
-                  {/* Connector to next card */}
-                  {i < pinnedTasks.length - 1 && (
-                    <div
-                      className="connector-anim w-full"
-                      style={{ animationDelay: `${(i + 1) * 90 + 180}ms` }}
-                    >
-                      <CardConnector fromLeft={i % 2 === 0} />
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* ── Extra tasks (6th+ active today tasks) ── */}
-      {extraTasks.length > 0 && (
-        <div className="mt-4">
-          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 px-1">
-            باقی وظایف امروز ({extraTasks.length})
+      {/* ── All-done state ── */}
+      {allDone && (
+        <EmptyState
+          icon={<StarIcon />}
+          title="همه کارهای امروز انجام شدند!"
+          description="عالیه، امروز رو به خوبی پشت سر گذاشتی 🎉"
+        />
+      )}
+
+      {/* ── No tasks state ── */}
+      {!allDone && totalCount === 0 && (
+        <EmptyState
+          icon={<ChecklistIcon />}
+          title="امروز هنوز وظیفه‌ای ثبت نکرده‌ای"
+          description="اولین وظیفه امروزت را از بالا اضافه کن"
+        />
+      )}
+
+      {/* ── Pinboard cards ── */}
+      {pinnedTasks.length > 0 && (
+        <div className="board-anim board-anim-3">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-4 px-1 tracking-wide">
+            وظایف اصلی
           </p>
-          <TaskList
-            tasks={extraTasks}
-            filter="all"
-            search=""
-            categoryFilter=""
-          />
+          <div className="flex flex-col items-center max-w-xl mx-auto">
+            {pinnedTasks.map((task, i) => (
+              <React.Fragment key={task.id}>
+                <div className={`flex w-full justify-center ${i % 2 === 0 ? 'md:justify-start' : 'md:justify-end'}`}>
+                  <FloatingTaskCard task={task} index={i} />
+                </div>
+                {i < pinnedTasks.length - 1 && (
+                  <div className="connector-anim w-full" style={{ animationDelay: `${(i + 1) * 90 + 180}ms` }}>
+                    <CardConnector fromLeft={i % 2 === 0} />
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* ── Search / Filter toggle ── */}
-      <div className="mt-4">
+      {/* ── Extra tasks (6th+ active) ── */}
+      {extraTasks.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 px-1">
+            باقی وظایف امروز ({extraTasks.length})
+          </p>
+          <TaskList tasks={extraTasks} filter="all" search="" categoryFilter="" />
+        </div>
+      )}
+
+      {/* ── Search / Filter ── */}
+      <div>
         <button
           onClick={() => setShowFilters(v => !v)}
           className="flex items-center gap-2 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors px-1 py-2"
