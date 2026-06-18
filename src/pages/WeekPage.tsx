@@ -76,7 +76,7 @@ export function WeekPage() {
       <p className="text-xs text-gray-700 dark:text-gray-300 -mt-2">
         {getWeekLabel(weekOffset)}
         {totalWeekTasks > 0 && (
-          <span className="mr-2 px-2 py-0.5 rounded-full bg-violet-100/80 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs">
+          <span className="mr-2 px-2 py-0.5 rounded-full bg-blue-100/80 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs">
             {totalWeekTasks} وظیفه
           </span>
         )}
@@ -93,29 +93,29 @@ export function WeekPage() {
             className={`
               rounded-2xl border overflow-hidden
               glass-surface
-              ${isTd ? 'ring-1 ring-violet-300/50 dark:ring-violet-700/40' : ''}
+              ${isTd ? 'ring-1 ring-blue-300/50 dark:ring-blue-700/40' : ''}
             `}
           >
             {/* Day header */}
             <div
               className={`
                 flex items-center justify-between px-4 py-3 border-b
-                border-b border-white/50 dark:border-violet-900/30
+                border-b border-white/50 dark:border-blue-900/30
               `}
             >
               <div className="flex items-center gap-2">
                 {isTd && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500 flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                 )}
                 <span
                   className={`text-sm font-semibold ${
                     isTd
-                      ? 'text-violet-700 dark:text-violet-300'
+                      ? 'text-blue-700 dark:text-blue-300'
                       : 'text-gray-700 dark:text-gray-200'
                   }`}
                 >
                   {formatWeekdayFa(day)}
-                  {isTd && <span className="mr-1 text-xs font-normal text-violet-500 dark:text-violet-400">(امروز)</span>}
+                  {isTd && <span className="mr-1 text-xs font-normal text-blue-500 dark:text-blue-400">(امروز)</span>}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500">
                   {formatShortDateFa(day)}
@@ -128,7 +128,7 @@ export function WeekPage() {
                 )}
                 <button
                   onClick={() => setAddForDate(day)}
-                  className="p-1 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-white/60 dark:hover:bg-violet-900/20 transition-colors"
+                  className="p-1 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-white/60 dark:hover:bg-blue-900/20 transition-colors"
                   aria-label="افزودن وظیفه"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

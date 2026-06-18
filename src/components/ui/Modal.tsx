@@ -33,9 +33,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       {/* Sheet */}
       <div className="relative w-full sm:max-w-lg glass-modal rounded-t-3xl sm:rounded-2xl animate-slide-up max-h-[92dvh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/50 dark:border-violet-900/30 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/50 dark:border-blue-900/30 flex-shrink-0">
           {/* Drag handle (mobile) */}
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-violet-200 dark:bg-violet-800/50 sm:hidden" />
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-blue-200 dark:bg-blue-800/50 sm:hidden" />
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
           <button
             onClick={onClose}

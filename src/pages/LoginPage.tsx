@@ -69,7 +69,7 @@ export function LoginPage() {
         <div className="relative px-8 py-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg mb-3" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg mb-3" style={{background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)'}}>
               ی
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">میزکار تیمی</h1>
@@ -137,7 +137,7 @@ export function LoginPage() {
               type="submit"
               disabled={loading}
               className="mt-2 w-full py-3.5 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg transition-all duration-200 active:scale-95 hover:opacity-90"
-            style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)', boxShadow: '0 4px 20px rgba(120,60,230,0.40)'}}
+            style={{background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)', boxShadow: '0 4px 20px rgba(24,72,245,0.40)'}}
             >
               {loading ? 'در حال پردازش...' : mode === 'login' ? 'ورود' : 'ثبت‌نام'}
             </button>

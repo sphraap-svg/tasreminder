@@ -110,8 +110,8 @@ export function SettingsPage() {
                 onClick={() => setTheme(opt.value)}
                 className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-medium transition-colors
                   ${theme === opt.value
-                    ? 'border-violet-400 bg-white/70 dark:bg-violet-900/25 text-violet-700 dark:text-violet-300'
-                    : 'border-white/50 dark:border-violet-900/30 text-gray-600 dark:text-gray-300 hover:border-white/80 dark:hover:border-violet-700/40'}`}
+                    ? 'border-blue-400 bg-white/70 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300'
+                    : 'border-white/50 dark:border-blue-900/30 text-gray-600 dark:text-gray-300 hover:border-white/80 dark:hover:border-violet-700/40'}`}
               >
                 <span className="text-lg">{opt.icon}</span>
                 {opt.label}
@@ -190,7 +190,7 @@ export function SettingsPage() {
               )}
 
               {/* Limitation notice */}
-              <div className="mt-4 pt-4 border-t border-white/50 dark:border-violet-900/30 space-y-1.5">
+              <div className="mt-4 pt-4 border-t border-white/50 dark:border-blue-900/30 space-y-1.5">
                 <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">
                   ⚠️ <span className="font-medium">محدودیت:</span> یادآوری‌ها تا زمانی که برنامه در مرورگر باز باشد کار می‌کنند.
                   برای یادآوری در پس‌زمینه، برنامه را به عنوان PWA نصب کنید.
@@ -236,7 +236,7 @@ export function SettingsPage() {
               </Button>
             </div>
 
-            <div className="border-t border-white/50 dark:border-violet-900/30 pt-3 flex items-center justify-between">
+            <div className="border-t border-white/50 dark:border-blue-900/30 pt-3 flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-red-600 dark:text-red-400">
                   پاک کردن همه داده‌ها

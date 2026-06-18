@@ -62,7 +62,7 @@ export function BottomNav() {
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
                 isActive
-                  ? 'text-violet-600 dark:text-violet-400'
+                  ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`
             }
@@ -86,7 +86,7 @@ export function SideNav() {
     <nav className="hidden md:flex flex-col w-56 flex-shrink-0 glass-sidebar min-h-screen py-8 px-4 gap-1">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-3 mb-8">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold" style={{background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)'}}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold" style={{background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)'}}>
           ی
         </div>
         <span className="font-bold text-gray-900 dark:text-gray-100">یادآور</span>
@@ -99,7 +99,7 @@ export function SideNav() {
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-violet-100/70 dark:bg-violet-900/25 text-violet-700 dark:text-violet-300'
+                ? 'bg-blue-100/70 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300'
                 : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
             }`
           }

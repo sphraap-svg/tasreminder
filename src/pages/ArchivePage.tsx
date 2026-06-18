@@ -78,7 +78,7 @@ function ArchiveItem({ task, onRestore, onDelete }: ArchiveItemProps) {
           <button
             onClick={handleRestore}
             title="بازگرداندن"
-            className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-white/60 dark:hover:bg-violet-900/20 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-white/60 dark:hover:bg-blue-900/20 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
