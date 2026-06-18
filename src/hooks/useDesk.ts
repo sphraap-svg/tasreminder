@@ -52,7 +52,9 @@ export function useDesk() {
         tasks: (tasks ?? []).map((t: any) => ({
           id: t.id, title: t.title, description: t.description,
           type: t.type, assignedTo: t.assigned_to, createdBy: t.created_by,
-          status: t.status, createdAt: t.created_at,
+          status: t.status, urgent: t.urgent ?? false,
+          completionNote: t.completion_note ?? undefined,
+          createdAt: t.created_at,
         })),
         createdAt: ws.created_at,
       });
@@ -70,15 +72,39 @@ export function useDesk() {
   useEffect(() => {
     if (!supabase || !session?.workspaceId) return;
     const wsId = session.workspaceId;
+    const currentMemberId = session.memberId;
+
+    function showUrgentNotification(title: string, assigneeName?: string) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const icon = `${import.meta.env.BASE_URL}icons/icon-192.png`;
+      const body = assigneeName
+        ? `مدیر یک کار فوری برای ${assigneeName} تعیین کرده`
+        : 'مدیر یک کار فوری برای شما تعیین کرده';
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready
+          .then(reg => reg.showNotification(`🚨 کار فوری: ${title}`, { body, icon, badge: icon, tag: `urgent-${Date.now()}`, requireInteraction: true }))
+          .catch(() => new Notification(`🚨 کار فوری: ${title}`, { body, icon }));
+      } else {
+        new Notification(`🚨 کار فوری: ${title}`, { body, icon });
+      }
+    }
 
     const channel = supabase
       .channel(`desk-${wsId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_members', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, (payload) => {
+        const t = payload.new as any;
+        if (t.urgent && t.assigned_to === currentMemberId) {
+          showUrgentNotification(t.title);
+        }
+        loadWorkspace(wsId);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
       .subscribe();
 
     return () => { supabase!.removeChannel(channel); };
-  }, [session?.workspaceId, loadWorkspace]);
+  }, [session?.workspaceId, session?.memberId, loadWorkspace]);
 
   const createWorkspace = useCallback(async (name: string, managerName: string, managerPin: string): Promise<string | null> => {
     if (!supabase) return 'Supabase پیکربندی نشده';
@@ -163,7 +189,7 @@ export function useDesk() {
   }, []);
 
   const addTask = useCallback(async (
-    title: string, type: DeskTaskType, assignedTo?: string, description?: string,
+    title: string, type: DeskTaskType, assignedTo?: string, description?: string, urgent?: boolean,
   ): Promise<string | null> => {
     if (!supabase || !workspace || !session) return 'خطا';
     if (!title.trim()) return 'عنوان الزامی است';
@@ -177,14 +203,17 @@ export function useDesk() {
       assigned_to: assignedTo ?? null,
       created_by: session.memberId,
       status: 'pending',
+      urgent: urgent ?? false,
       created_at: now(),
     });
     return error ? error.message : null;
   }, [workspace, session]);
 
-  const setTaskStatus = useCallback(async (taskId: string, status: DeskTaskStatus) => {
+  const setTaskStatus = useCallback(async (taskId: string, status: DeskTaskStatus, completionNote?: string) => {
     if (!supabase) return;
-    await supabase.from('desk_tasks').update({ status }).eq('id', taskId);
+    const update: Record<string, any> = { status };
+    if (status === 'done' && completionNote !== undefined) update.completion_note = completionNote || null;
+    await supabase.from('desk_tasks').update(update).eq('id', taskId);
   }, []);
 
   const deleteTask = useCallback(async (taskId: string) => {
@@ -197,4 +226,5 @@ export function useDesk() {
     createWorkspace, joinWorkspace, managerLogin, logout,
     addTask, setTaskStatus, deleteTask,
   };
+
 }

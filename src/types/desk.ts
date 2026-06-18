@@ -17,6 +17,8 @@ export interface DeskTask {
   assignedTo?: string; // member id (for personal tasks)
   createdBy: string;   // member id
   status: DeskTaskStatus;
+  urgent?: boolean;
+  completionNote?: string;
   createdAt: string;
 }
 

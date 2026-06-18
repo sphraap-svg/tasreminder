@@ -70,30 +70,47 @@ interface FeaturedTaskCardProps {
 }
 
 function FeaturedTaskCard({ task, onComplete, onEdit, stackCount }: FeaturedTaskCardProps) {
+  const [completing, setCompleting] = useState(false);
+
   const timeLabel = task.time
     ? new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit', hour12: true }).format(
         new Date(`${task.date}T${task.time}:00`)
       )
     : null;
 
+  function handleComplete() {
+    if (completing) return;
+    setCompleting(true);
+    setTimeout(() => {
+      onComplete();
+      setCompleting(false);
+    }, 380);
+  }
+
   return (
-    <div className="relative" style={{ paddingTop: stackCount >= 2 ? '44px' : stackCount === 1 ? '22px' : '0' }}>
-      {/* Ghost cards behind */}
+    <div
+      className="relative"
+      style={{ paddingTop: stackCount >= 2 ? '44px' : stackCount === 1 ? '22px' : '0' }}
+    >
+      {/* Ghost cards — inside the paddingTop area, no negative translateY */}
       {stackCount >= 2 && (
         <div
-          className="featured-stack-ghost-2 absolute inset-x-3 top-0"
-          style={{ height: '100px' }}
+          className={`featured-stack-ghost-2 absolute inset-x-3 ${completing ? 'ghost-to-front' : ''}`}
+          style={{ height: '88px', top: '0px' }}
         />
       )}
       {stackCount >= 1 && (
         <div
-          className="featured-stack-ghost absolute inset-x-1.5 top-3"
-          style={{ height: '100px' }}
+          className={`featured-stack-ghost absolute inset-x-1.5 ${completing ? 'ghost-to-front' : ''}`}
+          style={{ height: '88px', top: '11px', animationDelay: '50ms' }}
         />
       )}
 
       {/* Main card */}
-      <div className="featured-task-card p-6 home-card-enter" style={{ animationDelay: '80ms' }}>
+      <div
+        className={`featured-task-card p-6 home-card-enter ${completing ? 'featured-card-to-back' : ''}`}
+        style={{ animationDelay: completing ? '0ms' : '80ms' }}
+      >
         {/* Row 1: priority + time */}
         <div className="flex items-center justify-between mb-5" dir="rtl">
           <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${PRIORITY_CLASS[task.priority] || 'priority-medium'} bg-white/20 !text-white`}>
@@ -121,15 +138,24 @@ function FeaturedTaskCard({ task, onComplete, onEdit, stackCount }: FeaturedTask
         {/* Bottom: slide-to-done + edit */}
         <div className="flex items-center gap-3" dir="rtl">
           <button
-            onClick={onComplete}
-            className="slide-to-done-track flex-1 flex items-center gap-2.5 px-2 py-2 text-white text-sm font-semibold"
+            onClick={handleComplete}
+            disabled={completing}
+            className="slide-to-done-track flex-1 flex items-center gap-2.5 px-2 py-2 text-white text-sm font-semibold disabled:opacity-70"
             dir="rtl"
           >
-            <span className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.95)' }}>
-              <CheckIcon className="w-4 h-4 text-blue-600" />
+            <span
+              className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${completing ? 'scale-90' : ''}`}
+              style={{ background: 'rgba(255,255,255,0.95)' }}
+            >
+              {completing
+                ? <svg className="w-4 h-4 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                : <CheckIcon className="w-4 h-4 text-blue-600" />
+              }
             </span>
-            <span className="flex-1 text-right text-sm text-white/90">بکش تا تموم بشه</span>
-            <span className="text-white/40 text-base tracking-widest">›››</span>
+            <span className="flex-1 text-right text-sm text-white/90">
+              {completing ? 'در حال ثبت…' : 'بکش تا تموم بشه'}
+            </span>
+            {!completing && <span className="text-white/40 text-base tracking-widest">›››</span>}
           </button>
 
           <button
@@ -356,8 +382,11 @@ export function HomePage() {
   return (
     <div className="flex flex-col gap-5 pt-4 pb-28" dir="rtl">
 
-      {/* ── Greeting ── */}
-      <div className="home-card-enter flex items-center justify-between px-1" style={{ animationDelay: '0ms' }}>
+      {/* ── Greeting card ── */}
+      <div
+        className="home-card-enter home-card px-5 py-4 flex items-center justify-between"
+        style={{ animationDelay: '0ms' }}
+      >
         <div>
           <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
             <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />

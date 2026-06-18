@@ -606,21 +606,47 @@
   pointer-events: none;
 }
 
-/* Stacked card ghost — behind featured */
+/* Stacked card ghost — behind featured, inside container, no negative translateY */
 .featured-stack-ghost {
   background: linear-gradient(145deg, #3B6FF5 0%, #1848F5 100%);
-  border-radius: 28px;
+  border-radius: 24px;
   opacity: 0.55;
-  transform: scale(0.93) translateY(-22px);
-  transform-origin: bottom center;
+  transform: scale(0.93);
+  transform-origin: top center;
 }
 
 .featured-stack-ghost-2 {
   background: linear-gradient(145deg, #6390F8 0%, #3B6FF5 100%);
-  border-radius: 28px;
-  opacity: 0.30;
-  transform: scale(0.86) translateY(-44px);
-  transform-origin: bottom center;
+  border-radius: 22px;
+  opacity: 0.28;
+  transform: scale(0.84);
+  transform-origin: top center;
+}
+
+/* Ghost promotes to front when completing */
+@keyframes ghost-to-front {
+  from { transform: scale(0.93); opacity: 0.55; }
+  to   { transform: scale(1.04); opacity: 0; }
+}
+.ghost-to-front {
+  animation: ghost-to-front 0.40s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.featured-stack-ghost-2.ghost-to-front {
+  animation-name: ghost-to-front;
+  animation-duration: 0.36s;
+  animation-delay: 0s;
+  from { transform: scale(0.84); opacity: 0.28; }
+}
+
+/* Featured card exit — goes "to the back" */
+@keyframes featured-to-back {
+  0%   { transform: scale(1) translateY(0);   opacity: 1;   filter: blur(0px); }
+  25%  { transform: scale(1.02) translateY(-6px); opacity: 1; }
+  100% { transform: scale(0.80) translateY(28px); opacity: 0; filter: blur(3px); }
+}
+.featured-card-to-back {
+  animation: featured-to-back 0.38s cubic-bezier(0.4, 0, 0.8, 1) forwards;
+  pointer-events: none;
 }
 
 /* Slide-to-done slider */
