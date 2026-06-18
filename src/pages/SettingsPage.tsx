@@ -254,8 +254,15 @@ export function SettingsPage() {
       </div>
 
       {/* App version */}
-      <div className="text-center py-2 text-xs text-gray-400 dark:text-gray-600">
-        یادآور — نسخه ۱.۰.۰ · ساخته‌شده با ❤️
+      <div className="text-center py-2 text-xs text-gray-400 dark:text-gray-600 leading-relaxed">
+        Reminder it · نسخه ۱٫۱
+        <br />
+        ساخته شده توسط{' '}
+        <span className="text-lg font-black tracking-wider bg-clip-text text-transparent align-middle"
+          style={{ backgroundImage: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)' }}
+        >
+          SPY
+        </span>
       </div>
 
       <ConfirmDialog

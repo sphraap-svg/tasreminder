@@ -31,6 +31,19 @@ export function useReminderPoller() {
 
     check();
     const id = setInterval(check, POLL_INTERVAL_MS);
-    return () => clearInterval(id);
+
+    // Mobile browsers freeze setInterval while the tab is backgrounded, so a
+    // reminder whose time passed while the app was hidden never fires. Re-check
+    // the moment the user returns to (or refocuses) the app — this catches up
+    // any reminder still inside its window.
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', check);
+
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', check);
+    };
   }, []); // stable interval — never resets
 }

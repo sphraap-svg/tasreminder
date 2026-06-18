@@ -62,7 +62,7 @@ export function sendWorkspaceAssignNotification(title: string, byName?: string):
 
 export function sendTestNotification(): void {
   if (!isNotificationSupported() || Notification.permission !== 'granted') return;
-  showNotification('🔔 یادآور — اعلان آزمایشی', {
+  showNotification('🔔 Reminder it — اعلان آزمایشی', {
     body: 'یادآوری‌های مرورگر با موفقیت فعال هستند ✓',
     icon: ICON,
     tag: 'test-notification',

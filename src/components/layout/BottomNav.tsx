@@ -86,10 +86,10 @@ export function SideNav() {
     <nav className="hidden md:flex flex-col w-56 flex-shrink-0 glass-sidebar min-h-screen py-8 px-4 gap-1">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-3 mb-8">
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold" style={{background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)'}}>
-          ی
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black" style={{background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)'}}>
+          R
         </div>
-        <span className="font-bold text-gray-900 dark:text-gray-100">یادآور</span>
+        <span className="font-bold text-gray-900 dark:text-gray-100">Reminder it</span>
       </div>
 
       {NAV_ITEMS.map(item => (

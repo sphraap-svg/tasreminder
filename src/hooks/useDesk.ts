@@ -39,6 +39,37 @@ function unpackDescription(stored: string | null | undefined): {
   };
 }
 
+// ── urgent-task notifications ─────────────────────────────────────────────────
+function showUrgentNotification(title: string) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const icon = `${import.meta.env.BASE_URL}icons/icon-192.png`;
+  const body = 'مدیر یک کار فوری برای شما تعیین کرده';
+  const opts: NotificationOptions = {
+    body, icon, badge: icon, tag: `urgent-${Date.now()}`, requireInteraction: true,
+    // @ts-ignore
+    dir: 'rtl',
+  };
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready
+      .then(reg => reg.showNotification(`🚨 کار فوری: ${title}`, opts))
+      .catch(() => { try { new Notification(`🚨 کار فوری: ${title}`, opts); } catch { /* ignore */ } });
+  } else {
+    try { new Notification(`🚨 کار فوری: ${title}`, opts); } catch { /* ignore */ }
+  }
+}
+
+// Remember which urgent tasks we've already alerted on (per member), so neither
+// the realtime path, the polling fallback, nor reopening the app double-fires.
+function notifiedKey(memberId: string) { return `desk_notified_urgent_${memberId}`; }
+function loadNotified(memberId: string): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem(notifiedKey(memberId)) ?? '[]')); }
+  catch { return new Set(); }
+}
+function saveNotified(memberId: string, ids: Set<string>) {
+  try { localStorage.setItem(notifiedKey(memberId), JSON.stringify([...ids].slice(-200))); }
+  catch { /* ignore */ }
+}
+
 function loadSession(): DeskSession | null {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) ?? 'null'); } catch { return null; }
 }
@@ -112,48 +143,60 @@ export function useDesk() {
     }
   }, [session?.workspaceId]);
 
-  // Realtime sync for members and tasks
+  // Realtime sync for members and tasks (+ polling fallback in case Realtime
+  // is not enabled on the desk_* tables). Notifications themselves are fired by
+  // the deduped checker effect below, driven off the loaded `workspace`.
   useEffect(() => {
     if (!supabase || !session?.workspaceId) return;
     const wsId = session.workspaceId;
-    const currentMemberId = session.memberId;
-
-    function showUrgentNotification(title: string, assigneeName?: string) {
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
-      const icon = `${import.meta.env.BASE_URL}icons/icon-192.png`;
-      const body = assigneeName
-        ? `مدیر یک کار فوری برای ${assigneeName} تعیین کرده`
-        : 'مدیر یک کار فوری برای شما تعیین کرده';
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready
-          .then(reg => reg.showNotification(`🚨 کار فوری: ${title}`, { body, icon, badge: icon, tag: `urgent-${Date.now()}`, requireInteraction: true }))
-          .catch(() => new Notification(`🚨 کار فوری: ${title}`, { body, icon }));
-      } else {
-        new Notification(`🚨 کار فوری: ${title}`, { body, icon });
-      }
-    }
 
     const channel = supabase
       .channel(`desk-${wsId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_members', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, (payload) => {
-        const t = payload.new as any;
-        const meta = unpackDescription(t.description);
-        // Notify the assignee (or, for public urgent tasks, everyone but the creator)
-        const isForMe = t.assigned_to
-          ? t.assigned_to === currentMemberId
-          : t.created_by !== currentMemberId;
-        if (meta.urgent && isForMe) {
-          showUrgentNotification(t.title);
-        }
-        loadWorkspace(wsId);
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
       .subscribe();
 
-    return () => { supabase!.removeChannel(channel); };
-  }, [session?.workspaceId, session?.memberId, loadWorkspace]);
+    // Polling fallback — keeps tasks (and therefore urgent alerts) flowing even
+    // if Realtime isn't delivering, as long as the app is open/foreground.
+    const poll = setInterval(() => {
+      if (document.visibilityState === 'visible') loadWorkspace(wsId);
+    }, 20_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') loadWorkspace(wsId); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+
+    return () => {
+      supabase!.removeChannel(channel);
+      clearInterval(poll);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
+  }, [session?.workspaceId, loadWorkspace]);
+
+  // Fire urgent notifications for tasks assigned to me that I haven't been
+  // alerted about yet. Runs after every load (realtime, poll, or initial), so
+  // it also catches up urgent tasks created while the app was closed.
+  useEffect(() => {
+    if (!workspace || !session) return;
+    const me = session.memberId;
+    // First run for this member: seed silently so we don't dump every existing
+    // urgent task as a notification at once.
+    const firstRun = localStorage.getItem(notifiedKey(me)) === null;
+    const notified = loadNotified(me);
+    let changed = false;
+    for (const t of workspace.tasks) {
+      if (!t.urgent || t.status !== 'pending') continue;
+      const isForMe = t.assignedTo
+        ? t.assignedTo === me
+        : t.createdBy !== me; // public urgent → everyone but the creator
+      if (!isForMe) continue;
+      if (notified.has(t.id)) continue;
+      if (!firstRun) showUrgentNotification(t.title);
+      notified.add(t.id);
+      changed = true;
+    }
+    if (changed || firstRun) saveNotified(me, notified);
+  }, [workspace, session]);
 
   const createWorkspace = useCallback(async (name: string, managerName: string, managerPin: string): Promise<string | null> => {
     if (!supabase) return 'Supabase پیکربندی نشده';
