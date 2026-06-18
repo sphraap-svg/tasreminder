@@ -117,8 +117,9 @@ export function isTimeReached(dateStr: string, timeStr: string): boolean {
 
 export function isWithinReminderWindow(dateStr: string, timeStr: string): boolean {
   const taskDateTime = new Date(`${dateStr}T${timeStr}:00`);
+  if (isNaN(taskDateTime.getTime())) return false;
   const now = new Date();
   const diffMs = now.getTime() - taskDateTime.getTime();
-  // Fire if task time has passed but not more than 60 minutes ago
-  return diffMs >= 0 && diffMs <= 60 * 60 * 1000;
+  // Fire from 5 minutes before up to 2 hours after task time
+  return diffMs >= -5 * 60 * 1000 && diffMs <= 2 * 60 * 60 * 1000;
 }

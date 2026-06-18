@@ -1,31 +1,36 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useToast } from '../context/ToastContext';
 import { shouldFireReminder, sendBrowserNotification } from '../utils/notifications';
 
-const POLL_INTERVAL_MS = 30_000; // check every 30 seconds
+const POLL_INTERVAL_MS = 30_000;
 
 export function useReminderPoller() {
   const { tasks, markReminderSent } = useTasks();
   const { addToast } = useToast();
 
+  // keep latest refs so the interval closure always sees current values
+  const tasksRef = useRef(tasks);
+  const markRef = useRef(markReminderSent);
+  const toastRef = useRef(addToast);
+
+  useEffect(() => { tasksRef.current = tasks; }, [tasks]);
+  useEffect(() => { markRef.current = markReminderSent; }, [markReminderSent]);
+  useEffect(() => { toastRef.current = addToast; }, [addToast]);
+
   useEffect(() => {
     function check() {
-      tasks.forEach(task => {
+      tasksRef.current.forEach(task => {
         if (shouldFireReminder(task)) {
-          // In-app toast
-          addToast(`⏰ یادآوری: ${task.title}`, 'info');
-          // Browser notification (if permission granted)
+          markRef.current(task.id);
+          toastRef.current(`⏰ یادآوری: ${task.title}`, 'info');
           sendBrowserNotification(task);
-          // Mark so it doesn't fire again
-          markReminderSent(task.id);
         }
       });
     }
 
-    check(); // immediate check on mount / tasks change
+    check();
     const id = setInterval(check, POLL_INTERVAL_MS);
     return () => clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks]);
+  }, []); // stable interval — never resets
 }
