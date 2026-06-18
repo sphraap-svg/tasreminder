@@ -233,10 +233,10 @@ function DeskSection({ workspace, onGoToDesk }: { workspace: ReturnType<typeof u
       ) : (
         pendingTasks.slice(0, 5).map(t => (
           <div key={t.id} className="mini-task-card flex items-center gap-3 px-4 py-3.5" dir="rtl">
-            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${t.status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-300'}`} />
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${t.status === 'done' ? 'bg-green-500' : 'bg-gray-300'}`} />
             <p className="flex-1 text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{t.title}</p>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-blue-600 dark:text-blue-300" style={{ background: 'rgba(24,72,245,0.08)' }}>
-              {t.status === 'in_progress' ? 'در حال انجام' : t.status === 'review' ? 'بررسی' : 'در انتظار'}
+              {t.status === 'done' ? 'انجام شده' : 'در انتظار'}
             </span>
           </div>
         ))
