@@ -88,7 +88,7 @@ export function TodayPage() {
                 </span>
               )}
               {remainingCount > 0 && (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-100/80 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                   {remainingCount} باقی
                 </span>
               )}

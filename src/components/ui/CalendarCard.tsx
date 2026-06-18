@@ -126,7 +126,7 @@ export function CalendarCard({
     const todayDay = isToday(day);
     if (isSelected) {
       return {
-        background: 'linear-gradient(135deg, #c026d3 0%, #7c3aed 100%)',
+        background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)',
         boxShadow: '0 4px 16px rgba(124,58,237,0.55)',
         color: '#fff',
       };

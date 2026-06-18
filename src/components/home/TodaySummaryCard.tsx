@@ -43,7 +43,7 @@ export function TodaySummaryCard() {
               </span>
             </div>
             {remaining > 0 && (
-              <span className="mb-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+              <span className="mb-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300">
                 {new Intl.NumberFormat('fa-IR').format(remaining)} باقی
               </span>
             )}
@@ -62,7 +62,7 @@ export function TodaySummaryCard() {
                 width: `${progress * 100}%`,
                 background: progress === 1
                   ? 'linear-gradient(90deg, #10b981, #34d399)'
-                  : 'linear-gradient(90deg, #6366f1, #818cf8)',
+                  : 'linear-gradient(90deg, #1848F5, #4F7EF8)',
               }}
             />
           </div>

@@ -11,6 +11,7 @@ interface TaskFormProps {
   onSubmit: (data: TaskFormData) => void;
   initialData?: Task | null;
   defaultDate?: string;
+  defaultRecurrence?: RecurrenceType;
 }
 
 const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string }[] = [
@@ -24,7 +25,7 @@ const RECURRENCE_OPTIONS: { value: RecurrenceType; label: string }[] = Object.en
 ).map(([value, label]) => ({ value: value as RecurrenceType, label }));
 
 const FIELD =
-  'w-full px-3 py-2.5 text-sm rounded-xl glass-surface text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-shadow';
+  'w-full px-3 py-2.5 text-sm rounded-xl glass-surface text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-shadow';
 
 function emptyForm(defaultDate: string): TaskFormData {
   return {
@@ -42,7 +43,7 @@ function emptyForm(defaultDate: string): TaskFormData {
   };
 }
 
-export function TaskForm({ open, onClose, onSubmit, initialData, defaultDate }: TaskFormProps) {
+export function TaskForm({ open, onClose, onSubmit, initialData, defaultDate, defaultRecurrence }: TaskFormProps) {
   const baseDate = defaultDate ?? today();
   const [form, setForm] = useState<TaskFormData>(emptyForm(baseDate));
   const [tagInput, setTagInput] = useState('');
@@ -67,7 +68,9 @@ export function TaskForm({ open, onClose, onSubmit, initialData, defaultDate }: 
       });
       setTagInput(initialData.tags.join('، '));
     } else {
-      setForm(emptyForm(baseDate));
+      const base = emptyForm(baseDate);
+      if (defaultRecurrence) base.recurrence = defaultRecurrence;
+      setForm(base);
       setTagInput('');
     }
     setErrors({});
