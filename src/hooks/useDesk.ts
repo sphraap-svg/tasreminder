@@ -6,6 +6,39 @@ import { now } from '../utils/date';
 
 const SESSION_KEY = 'desk_session';
 
+// ── description metadata codec ────────────────────────────────────────────────
+// The live `desk_tasks` table has no `urgent` / `completion_note` columns, so we
+// transparently pack those fields into the existing `description` column behind a
+// sentinel. Everything outside this hook sees clean DeskTask fields.
+const META_MARK = '§META§';
+
+interface DeskMeta { urgent?: boolean; completionNote?: string }
+
+function packDescription(description: string | undefined, meta: DeskMeta): string | null {
+  const payload: Record<string, unknown> = {};
+  if (meta.urgent) payload.u = 1;
+  if (meta.completionNote) payload.n = meta.completionNote;
+  const base = (description ?? '').trim();
+  if (Object.keys(payload).length === 0) return base || null;
+  return `${base}\n${META_MARK}${JSON.stringify(payload)}`;
+}
+
+function unpackDescription(stored: string | null | undefined): {
+  description?: string; urgent: boolean; completionNote?: string;
+} {
+  if (!stored) return { description: undefined, urgent: false, completionNote: undefined };
+  const i = stored.indexOf(META_MARK);
+  if (i === -1) return { description: stored, urgent: false, completionNote: undefined };
+  const desc = stored.slice(0, i).replace(/\n+$/, '');
+  let meta: any = {};
+  try { meta = JSON.parse(stored.slice(i + META_MARK.length)); } catch { /* ignore */ }
+  return {
+    description: desc || undefined,
+    urgent: !!meta.u,
+    completionNote: meta.n || undefined,
+  };
+}
+
 function loadSession(): DeskSession | null {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) ?? 'null'); } catch { return null; }
 }
@@ -49,13 +82,16 @@ export function useDesk() {
         members: (members ?? []).map((m: any) => ({
           id: m.id, name: m.name, role: m.role, joinedAt: m.joined_at,
         })),
-        tasks: (tasks ?? []).map((t: any) => ({
-          id: t.id, title: t.title, description: t.description,
-          type: t.type, assignedTo: t.assigned_to, createdBy: t.created_by,
-          status: t.status, urgent: t.urgent ?? false,
-          completionNote: t.completion_note ?? undefined,
-          createdAt: t.created_at,
-        })),
+        tasks: (tasks ?? []).map((t: any) => {
+          const meta = unpackDescription(t.description);
+          return {
+            id: t.id, title: t.title, description: meta.description,
+            type: t.type, assignedTo: t.assigned_to, createdBy: t.created_by,
+            status: t.status, urgent: meta.urgent,
+            completionNote: meta.completionNote,
+            createdAt: t.created_at,
+          };
+        }),
         createdAt: ws.created_at,
       });
     } finally {
@@ -67,6 +103,14 @@ export function useDesk() {
     if (session?.workspaceId) loadWorkspace(session.workspaceId);
     else setWorkspace(null);
   }, [session, loadWorkspace]);
+
+  // Ask for notification permission once in a workspace so urgent-task alerts
+  // can actually reach this member.
+  useEffect(() => {
+    if (session?.workspaceId && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => { /* ignore */ });
+    }
+  }, [session?.workspaceId]);
 
   // Realtime sync for members and tasks
   useEffect(() => {
@@ -94,7 +138,12 @@ export function useDesk() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'desk_members', filter: `workspace_id=eq.${wsId}` }, () => loadWorkspace(wsId))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'desk_tasks', filter: `workspace_id=eq.${wsId}` }, (payload) => {
         const t = payload.new as any;
-        if (t.urgent && t.assigned_to === currentMemberId) {
+        const meta = unpackDescription(t.description);
+        // Notify the assignee (or, for public urgent tasks, everyone but the creator)
+        const isForMe = t.assigned_to
+          ? t.assigned_to === currentMemberId
+          : t.created_by !== currentMemberId;
+        if (meta.urgent && isForMe) {
           showUrgentNotification(t.title);
         }
         loadWorkspace(wsId);
@@ -198,12 +247,11 @@ export function useDesk() {
       id: generateId(),
       workspace_id: workspace.id,
       title: title.trim(),
-      description: description?.trim() || null,
+      description: packDescription(description, { urgent: urgent ?? false }),
       type,
       assigned_to: assignedTo ?? null,
       created_by: session.memberId,
       status: 'pending',
-      urgent: urgent ?? false,
       created_at: now(),
     });
     return error ? error.message : null;
@@ -212,7 +260,20 @@ export function useDesk() {
   const setTaskStatus = useCallback(async (taskId: string, status: DeskTaskStatus, completionNote?: string) => {
     if (!supabase) return;
     const update: Record<string, any> = { status };
-    if (status === 'done' && completionNote !== undefined) update.completion_note = completionNote || null;
+    if (status === 'done' && completionNote !== undefined) {
+      // Repack the completion note into `description`, preserving the real
+      // description and the urgent flag already stored there.
+      const { data: row } = await supabase
+        .from('desk_tasks')
+        .select('description')
+        .eq('id', taskId)
+        .single();
+      const meta = unpackDescription(row?.description);
+      update.description = packDescription(meta.description, {
+        urgent: meta.urgent,
+        completionNote: completionNote || undefined,
+      });
+    }
     await supabase.from('desk_tasks').update(update).eq('id', taskId);
   }, []);
 

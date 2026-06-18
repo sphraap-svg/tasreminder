@@ -492,6 +492,20 @@ const FOLDER_COLORS = [
 ];
 
 // ── Member Folder Card ────────────────────────────────────────────────────────
+// Small stat chip with icon shown on the member folder footer
+function FolderStat({ value, icon }: { value: number; icon: React.ReactNode }) {
+  return (
+    <div className="flex-1 flex flex-col items-center gap-0.5 rounded-xl py-1.5"
+      style={{ background: 'rgba(255,255,255,0.18)' }}
+    >
+      <svg className="w-3.5 h-3.5 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        {icon}
+      </svg>
+      <span className="text-white font-black text-sm leading-none tabular-nums">{value}</span>
+    </div>
+  );
+}
+
 function MemberFolderCard({
   member,
   tasks,
@@ -505,102 +519,68 @@ function MemberFolderCard({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  const total = tasks.length;
   const done = tasks.filter(t => t.status === 'done').length;
-  const pending = tasks.length - done;
-  const pct = tasks.length === 0 ? 0 : Math.round((done / tasks.length) * 100);
+  const pending = total - done;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   const hasUrgent = tasks.some(t => t.urgent && t.status === 'pending');
-
-  const glassColor = color + 'cc';
-  const backColor = color + 'ee';
 
   return (
     <button
       onClick={onClick}
-      className="w-full text-right focus:outline-none group"
-      style={{ aspectRatio: '1 / 1' }}
+      className="w-full text-right focus:outline-none active:scale-[0.97] transition-transform duration-200"
     >
       <div
-        className="relative w-full h-full rounded-3xl overflow-hidden transition-transform duration-200 active:scale-95"
+        className="relative w-full rounded-2xl overflow-hidden p-3 flex flex-col gap-2.5"
         style={{
+          background: `linear-gradient(150deg, ${color}f2 0%, ${color}cc 100%)`,
           boxShadow: isSelected
-            ? `0 0 0 3px ${color}, 0 8px 32px ${color}55`
-            : `0 4px 24px ${color}44`,
-          transform: isSelected ? 'scale(0.97)' : undefined,
+            ? `0 0 0 3px #fff, 0 0 0 5px ${color}, 0 8px 26px ${color}66`
+            : `0 5px 20px ${color}55`,
         }}
       >
-        {/* Urgent indicator */}
-        {hasUrgent && (
-          <div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center shadow-lg">
-            <span className="text-xs">🚨</span>
+        {/* Header: folder icon + name + urgent */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.22)' }}
+          >
+            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+            </svg>
           </div>
-        )}
-
-        {/* Back */}
-        <div className="absolute inset-0" style={{ background: backColor }} />
-
-        {/* Papers */}
-        <div className="absolute left-4 right-4 flex items-end justify-center gap-2"
-          style={{ top: '6%', bottom: '42%' }}
-        >
-          {[8, 0, -8].map((rotate, i) => (
-            <div
-              key={i}
-              className="rounded-xl flex-shrink-0 flex flex-col gap-1 px-2 pt-2"
-              style={{
-                width: '30%', height: '100%',
-                background: 'rgba(255,255,255,0.88)',
-                transform: `rotate(${rotate}deg)`,
-                transformOrigin: 'bottom center',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              }}
-            >
-              <div className="h-1.5 rounded-full bg-gray-200" style={{ width: '75%' }} />
-              <div className="h-1 rounded-full bg-gray-100" style={{ width: '55%' }} />
-              <div className="h-1 rounded-full bg-gray-100" style={{ width: '65%' }} />
-            </div>
-          ))}
-        </div>
-
-        {/* Front cover */}
-        <div
-          className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3 flex flex-col justify-between"
-          style={{
-            height: '52%',
-            background: `linear-gradient(160deg, ${color}99 0%, ${glassColor} 100%)`,
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            borderTop: `1px solid rgba(255,255,255,0.25)`,
-          }}
-        >
-          <div />
-          <div>
-            <p className="text-white font-black text-base leading-tight truncate">{member.name}</p>
-            <p className="text-white/70 text-[11px] mt-0.5">
-              {tasks.length === 0
-                ? 'بدون وظیفه'
-                : pending > 0
-                ? `${pending} باقی‌مانده`
-                : 'همه انجام شد ✓'}
-            </p>
-          </div>
-          {tasks.length > 0 && (
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.25)' }}>
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%`, background: 'rgba(255,255,255,0.85)' }}
-                />
-              </div>
-              <span className="text-[10px] text-white/70 font-bold tabular-nums">{pct}٪</span>
-            </div>
+          <p className="text-white font-black text-sm leading-tight truncate flex-1">{member.name}</p>
+          {hasUrgent && (
+            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-[10px] shadow ring-2 ring-white/40">
+              🚨
+            </span>
           )}
         </div>
 
-        {/* Bottom glow */}
-        <div
-          className="absolute bottom-0 left-1/4 right-1/4 h-3 blur-xl rounded-full opacity-60"
-          style={{ background: color }}
-        />
+        {/* Progress */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.25)' }}>
+            <div className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${pct}%`, background: 'rgba(255,255,255,0.92)' }}
+            />
+          </div>
+          <span className="text-[10px] text-white/85 font-bold tabular-nums">{pct}٪</span>
+        </div>
+
+        {/* Three stats: total / done / remaining */}
+        <div className="flex items-stretch gap-1.5">
+          <FolderStat
+            value={total}
+            icon={<path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />}
+          />
+          <FolderStat
+            value={done}
+            icon={<path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />}
+          />
+          <FolderStat
+            value={pending}
+            icon={<path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />}
+          />
+        </div>
       </div>
     </button>
   );
