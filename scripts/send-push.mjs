@@ -3,7 +3,6 @@
 // closed. Reads everything through the anon key (RLS on desk_* is permissive);
 // the VAPID private key lives only in a GitHub Actions secret.
 import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
 
 const {
   SUPABASE_URL,
@@ -18,7 +17,26 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_K
 }
 
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+
+// Minimal PostgREST client over fetch (avoids the supabase-js WebSocket dep).
+const REST = `${SUPABASE_URL}/rest/v1`;
+const HEADERS = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+
+async function dbSelectAllTasks() {
+  const res = await fetch(`${REST}/desk_tasks?select=*`, { headers: HEADERS });
+  if (!res.ok) throw new Error(`select ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+async function dbUpdateTask(id, patch) {
+  await fetch(`${REST}/desk_tasks?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...HEADERS, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(patch),
+  });
+}
+async function dbDeleteTask(id) {
+  await fetch(`${REST}/desk_tasks?id=eq.${id}`, { method: 'DELETE', headers: HEADERS });
+}
 
 const PUSH_SUB_TITLE = '__push_sub__';
 const META_MARK = '§META§';
@@ -44,8 +62,7 @@ function pack(description, meta) {
 }
 
 async function main() {
-  const { data: rows, error } = await sb.from('desk_tasks').select('*');
-  if (error) { console.error('fetch error', error.message); process.exit(1); }
+  const rows = await dbSelectAllTasks();
 
   // subscriptions grouped by member (created_by)
   const subsByMember = new Map();
@@ -92,7 +109,7 @@ async function main() {
           sent++;
         } catch (e) {
           if (e.statusCode === 404 || e.statusCode === 410) {
-            await sb.from('desk_tasks').delete().eq('id', rowId);  // stale endpoint
+            await dbDeleteTask(rowId);  // stale endpoint
             pruned++;
           } else {
             console.error('push failed', e.statusCode, e.body || e.message);
@@ -103,7 +120,7 @@ async function main() {
 
     // mark as pushed so it is never sent twice
     meta.p = 1;
-    await sb.from('desk_tasks').update({ description: pack(description, meta) }).eq('id', t.id);
+    await dbUpdateTask(t.id, { description: pack(description, meta) });
   }
 
   console.log(`done — pushes sent: ${sent}, stale subs pruned: ${pruned}`);
