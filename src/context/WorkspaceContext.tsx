@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 import { Workspace, WorkspaceMember, WorkspaceTask, WorkspaceTaskStatus } from '../types/workspace';
+import { sendWorkspaceAssignNotification, requestNotificationPermission } from '../utils/notifications';
 
 interface WorkspaceContextValue {
   workspace: Workspace | null;
@@ -104,9 +105,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     load();
   }, [load]);
 
+  // Ask for notification permission once the user is in a workspace, so we can
+  // alert them when a task gets assigned to them.
+  useEffect(() => {
+    if (workspace) requestNotificationPermission();
+  }, [workspace]);
+
+  // keep a ref to members so the realtime handler can resolve assigner names
+  const membersRef = useRef<WorkspaceMember[]>(members);
+  useEffect(() => { membersRef.current = members; }, [members]);
+
   // Realtime subscription for task changes
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase || !workspace) return;
+    if (!isSupabaseConfigured || !supabase || !workspace || !user) return;
 
     const channel = supabase
       .channel(`workspace-tasks-${workspace.id}`)
@@ -115,13 +126,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         schema: 'public',
         table: 'workspace_tasks',
         filter: `workspace_id=eq.${workspace.id}`,
-      }, () => {
+      }, (payload) => {
+        // Notify the assignee when a task is newly assigned to them.
+        const next = payload.new as Partial<WorkspaceTask> | undefined;
+        const prev = payload.old as Partial<WorkspaceTask> | undefined;
+        const assignedToMe = next?.assigned_to === user.id;
+        const wasAssignedToMe = prev?.assigned_to === user.id;
+        const createdByMe = next?.created_by === user.id;
+        if (assignedToMe && !wasAssignedToMe && !createdByMe && next?.title) {
+          const by = membersRef.current.find(m => m.user_id === next.created_by);
+          sendWorkspaceAssignNotification(next.title, by?.display_name);
+        }
         load();
       })
       .subscribe();
 
     return () => { supabase!.removeChannel(channel); };
-  }, [workspace, load]);
+  }, [workspace, user, load]);
 
   async function createTask(data: {
     title: string;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { WorkspaceTaskItem } from '../components/workspace/WorkspaceTaskItem';
+import { MemberStatsCard } from '../components/workspace/MemberStatsCard';
 import { CreateWorkspaceTaskModal } from '../components/workspace/CreateWorkspaceTaskModal';
 import { WorkspaceTask } from '../types/workspace';
 
@@ -107,25 +108,38 @@ export function WorkspacePage() {
 
       {workspace && (
         <>
-          {/* Members strip */}
-          <div className="flex gap-2 overflow-x-auto pb-1 mb-4 no-scrollbar">
-            {members.map(m => (
-              <div
-                key={m.user_id}
-                title={m.display_name}
-                className="flex-shrink-0 flex flex-col items-center gap-1"
-              >
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
-                  m.role === 'manager'
-                    ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                }`}>
-                  {m.display_name.charAt(0)}
-                </div>
-                <span className="text-[10px] text-gray-400 max-w-[40px] truncate">{m.display_name}</span>
+          {/* Members ─ managers see rich stat cards, members see a compact avatar strip */}
+          {isManager ? (
+            <div className="mb-4">
+              <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
+                نفرات تیم ({members.length})
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                {members.map(m => (
+                  <MemberStatsCard key={m.user_id} member={m} tasks={tasks} />
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-1 mb-4 no-scrollbar">
+              {members.map(m => (
+                <div
+                  key={m.user_id}
+                  title={m.display_name}
+                  className="flex-shrink-0 flex flex-col items-center gap-1"
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                    m.role === 'manager'
+                      ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  }`}>
+                    {m.display_name.charAt(0)}
+                  </div>
+                  <span className="text-[10px] text-gray-400 max-w-[40px] truncate">{m.display_name}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl mb-4">

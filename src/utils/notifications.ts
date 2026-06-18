@@ -46,6 +46,20 @@ export function sendBrowserNotification(task: Task): void {
   });
 }
 
+/** Notify the assignee that a team/personal task was assigned to them. */
+export function sendWorkspaceAssignNotification(title: string, byName?: string): void {
+  if (!isNotificationSupported() || Notification.permission !== 'granted') return;
+  showNotification('📋 وظیفه جدید برای شما', {
+    body: byName ? `${byName} وظیفه «${title}» را به شما واگذار کرد` : `وظیفه «${title}» به شما واگذار شد`,
+    icon: ICON,
+    badge: ICON,
+    tag: `ws-assign-${title}`,
+    requireInteraction: false,
+    // @ts-ignore
+    dir: 'rtl',
+  });
+}
+
 export function sendTestNotification(): void {
   if (!isNotificationSupported() || Notification.permission !== 'granted') return;
   showNotification('🔔 یادآور — اعلان آزمایشی', {

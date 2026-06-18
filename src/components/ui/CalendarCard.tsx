@@ -126,12 +126,12 @@ export function CalendarCard({
     const todayDay = isToday(day);
     if (isSelected) {
       return {
-        background: 'linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)',
-        boxShadow: '0 4px 16px rgba(124,58,237,0.55)',
-        color: '#fff',
+        background: '#ffffff',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+        color: '#0A2ACC',
       };
     }
-    if (todayDay) return { background: 'rgba(255,255,255,0.35)', color: '#fff', fontWeight: 800 };
+    if (todayDay) return { background: 'rgba(255,255,255,0.30)', color: '#fff', fontWeight: 800 };
     return { color: 'rgba(255,255,255,0.85)' };
   }
 
@@ -146,10 +146,10 @@ export function CalendarCard({
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 75% 80% at 15% 25%, rgba(167,139,250,0.90) 0%, transparent 55%),
-            radial-gradient(ellipse 65% 65% at 82% 20%, rgba(251,182,155,0.85) 0%, transparent 52%),
-            radial-gradient(ellipse 55% 60% at 50% 95%, rgba(196,130,255,0.60) 0%, transparent 58%),
-            rgba(240,234,255,1)
+            radial-gradient(ellipse 75% 80% at 15% 25%, rgba(99,149,255,0.95) 0%, transparent 55%),
+            radial-gradient(ellipse 65% 65% at 82% 20%, rgba(24,72,245,0.85) 0%, transparent 52%),
+            radial-gradient(ellipse 55% 60% at 50% 95%, rgba(10,42,204,0.70) 0%, transparent 58%),
+            linear-gradient(135deg, #1848F5 0%, #0A2ACC 100%)
           `,
         }}
         aria-hidden
@@ -159,10 +159,10 @@ export function CalendarCard({
         .dark .dark-grad-bg {
           opacity: 1 !important;
           background:
-            radial-gradient(ellipse 75% 80% at 15% 25%, rgba(120,60,230,0.92) 0%, transparent 55%),
-            radial-gradient(ellipse 65% 65% at 82% 20%, rgba(200,80,60,0.75) 0%, transparent 52%),
-            radial-gradient(ellipse 55% 60% at 50% 95%, rgba(150,60,220,0.60) 0%, transparent 58%),
-            rgba(16,10,32,1);
+            radial-gradient(ellipse 75% 80% at 15% 25%, rgba(24,72,245,0.92) 0%, transparent 55%),
+            radial-gradient(ellipse 65% 65% at 82% 20%, rgba(10,44,180,0.78) 0%, transparent 52%),
+            radial-gradient(ellipse 55% 60% at 50% 95%, rgba(59,111,245,0.55) 0%, transparent 58%),
+            rgba(8,15,40,1);
         }
       `}</style>
 
