@@ -3,7 +3,7 @@ import { useTasks } from '../context/TaskContext';
 import { useToast } from '../context/ToastContext';
 import { shouldFireReminder, sendBrowserNotification } from '../utils/notifications';
 
-const POLL_INTERVAL_MS = 60_000; // check every 60 seconds
+const POLL_INTERVAL_MS = 30_000; // check every 30 seconds
 
 export function useReminderPoller() {
   const { tasks, markReminderSent } = useTasks();

@@ -16,33 +16,44 @@ export function getNotificationPermission(): NotificationPermission {
   return Notification.permission;
 }
 
+const ICON = `${import.meta.env.BASE_URL}icons/icon-192.png`;
+
+async function showNotification(title: string, options: NotificationOptions): Promise<void> {
+  // Prefer service worker showNotification (works in PWA/iOS context)
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title, options);
+      return;
+    } catch { /* fall through */ }
+  }
+  // Fallback to Notification constructor
+  try {
+    new Notification(title, options);
+  } catch { /* ignore */ }
+}
+
 export function sendBrowserNotification(task: Task): void {
   if (!isNotificationSupported() || Notification.permission !== 'granted') return;
-  try {
-    new Notification(`⏰ یادآوری: ${task.title}`, {
-      body: task.time ? `ساعت ${task.time}${task.description ? ` — ${task.description}` : ''}` : (task.description || ''),
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
-      tag: `task-${task.id}`,
-      requireInteraction: false,
-      // @ts-ignore — dir is valid in the Notification API but not typed in all TS versions
-      dir: 'rtl',
-    });
-  } catch {
-    // Notification constructor blocked in some browser contexts (e.g. non-secure)
-  }
+  showNotification(`⏰ یادآوری: ${task.title}`, {
+    body: task.time ? `ساعت ${task.time}${task.description ? ` — ${task.description}` : ''}` : (task.description || ''),
+    icon: ICON,
+    badge: ICON,
+    tag: `task-${task.id}`,
+    requireInteraction: false,
+    // @ts-ignore
+    dir: 'rtl',
+  });
 }
 
 export function sendTestNotification(): void {
   if (!isNotificationSupported() || Notification.permission !== 'granted') return;
-  try {
-    new Notification('🔔 یادآور — اعلان آزمایشی', {
-      body: 'یادآوری‌های مرورگر با موفقیت فعال هستند ✓',
-      icon: '/icons/icon-192.png',
-      tag: 'test-notification',
-      requireInteraction: false,
-    });
-  } catch { /* ignore */ }
+  showNotification('🔔 یادآور — اعلان آزمایشی', {
+    body: 'یادآوری‌های مرورگر با موفقیت فعال هستند ✓',
+    icon: ICON,
+    tag: 'test-notification',
+    requireInteraction: false,
+  });
 }
 
 export function shouldFireReminder(task: Task): boolean {
