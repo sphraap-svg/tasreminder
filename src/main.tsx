@@ -7,7 +7,7 @@ import './index.css';
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   import('virtual:pwa-register')
     .then(({ registerSW }) => {
-      registerSW({ immediate: false });
+      registerSW({ immediate: true });
     })
     .catch(() => undefined);
 }

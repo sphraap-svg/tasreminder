@@ -3,8 +3,14 @@ import { supabase } from '../lib/supabase';
 import { DeskWorkspace, DeskSession, DeskMember, DeskTask, DeskTaskType, DeskTaskStatus } from '../types/desk';
 import { generateId } from '../utils/id';
 import { now } from '../utils/date';
+import { getPushSubscription } from '../utils/push';
 
 const SESSION_KEY = 'desk_session';
+
+// Push subscriptions are stored as hidden rows in desk_tasks (the live DB has no
+// dedicated table and we only hold the anon key). Rows with this title are never
+// shown in the UI; the GitHub Actions sender reads them to deliver web push.
+const PUSH_SUB_TITLE = '__push_sub__';
 
 // ── description metadata codec ────────────────────────────────────────────────
 // The live `desk_tasks` table has no `urgent` / `completion_note` columns, so we
@@ -113,7 +119,7 @@ export function useDesk() {
         members: (members ?? []).map((m: any) => ({
           id: m.id, name: m.name, role: m.role, joinedAt: m.joined_at,
         })),
-        tasks: (tasks ?? []).map((t: any) => {
+        tasks: (tasks ?? []).filter((t: any) => t.title !== PUSH_SUB_TITLE).map((t: any) => {
           const meta = unpackDescription(t.description);
           return {
             id: t.id, title: t.title, description: meta.description,
@@ -142,6 +148,41 @@ export function useDesk() {
       Notification.requestPermission().catch(() => { /* ignore */ });
     }
   }, [session?.workspaceId]);
+
+  // Register this device's Web Push subscription so the server-side sender can
+  // deliver urgent-task notifications even when the app is fully closed. Stored
+  // as a hidden desk_tasks row keyed by endpoint (one row per device).
+  useEffect(() => {
+    if (!supabase || !session?.workspaceId) return;
+    let cancelled = false;
+    (async () => {
+      const sub = await getPushSubscription();
+      if (cancelled || !sub?.endpoint) return;
+      // Skip if this exact endpoint is already stored for this member.
+      const { data: existing } = await supabase!
+        .from('desk_tasks')
+        .select('id, description')
+        .eq('workspace_id', session.workspaceId)
+        .eq('created_by', session.memberId)
+        .eq('title', PUSH_SUB_TITLE);
+      const already = (existing ?? []).some((r: any) => {
+        try { return JSON.parse(r.description)?.endpoint === sub.endpoint; } catch { return false; }
+      });
+      if (already) return;
+      await supabase!.from('desk_tasks').insert({
+        id: generateId(),
+        workspace_id: session.workspaceId,
+        title: PUSH_SUB_TITLE,
+        description: JSON.stringify(sub),
+        type: 'public',
+        assigned_to: null,
+        created_by: session.memberId,
+        status: 'pending',
+        created_at: now(),
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [session?.workspaceId, session?.memberId]);
 
   // Realtime sync for members and tasks (+ polling fallback in case Realtime
   // is not enabled on the desk_* tables). Notifications themselves are fired by

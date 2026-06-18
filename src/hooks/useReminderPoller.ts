@@ -46,4 +46,49 @@ export function useReminderPoller() {
       window.removeEventListener('focus', check);
     };
   }, []); // stable interval — never resets
+
+  // ── Scheduled notifications (Notification Triggers API) ─────────────────────
+  // On supporting engines (Chromium / Android) this fires the reminder at the
+  // exact time even when the app is fully closed — no server needed. Unsupported
+  // engines (iOS Safari, Firefox) silently fall back to the foreground poller.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    // @ts-ignore — feature detection
+    if (typeof window.TimestampTrigger === 'undefined') return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    let active = true;
+    const ICON = `${import.meta.env.BASE_URL}icons/icon-192.png`;
+
+    navigator.serviceWorker.ready.then(async (reg) => {
+      if (!active) return;
+      // Clear previously scheduled (not-yet-fired) reminders we manage, then
+      // re-schedule from the current task list so add/edit/complete stay in sync.
+      try {
+        const pending = await reg.getNotifications({ includeTriggered: false } as any);
+        pending.forEach(n => { if (n.tag?.startsWith('reminder-')) n.close(); });
+      } catch { /* ignore */ }
+
+      const nowMs = Date.now();
+      for (const task of tasks) {
+        if (!task.reminderEnabled || task.completed || task.archived || !task.time) continue;
+        const ts = new Date(`${task.date}T${task.time}:00`).getTime();
+        if (isNaN(ts) || ts <= nowMs) continue;
+        try {
+          await reg.showNotification(`⏰ یادآوری: ${task.title}`, {
+            tag: `reminder-${task.id}`,
+            body: task.description || `ساعت ${task.time}`,
+            icon: ICON, badge: ICON,
+            data: { url: `${import.meta.env.BASE_URL}` },
+            // @ts-ignore — Notification Triggers
+            showTrigger: new window.TimestampTrigger(ts),
+            // @ts-ignore
+            dir: 'rtl',
+          });
+        } catch { /* ignore */ }
+      }
+    }).catch(() => { /* ignore */ });
+
+    return () => { active = false; };
+  }, [tasks]);
 }
